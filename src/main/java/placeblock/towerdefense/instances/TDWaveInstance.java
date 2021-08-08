@@ -1,5 +1,6 @@
 package placeblock.towerdefense.instances;
 
+import lombok.Getter;
 import org.bukkit.scheduler.BukkitRunnable;
 import placeblock.towerdefense.TowerDefense;
 import placeblock.towerdefense.creators.TDEnemie;
@@ -9,8 +10,8 @@ import java.util.HashMap;
 
 public class TDWaveInstance {
 
-    private final ArrayList<TDEnemieInstance> enemieInstances = new ArrayList<>();
-    private final TDGameInstance game;
+    @Getter private final ArrayList<TDEnemieInstance> enemieInstances = new ArrayList<>();
+    @Getter private final TDGameInstance game;
 
     public TDWaveInstance(HashMap<Integer, TDEnemie> enemies, TDGameInstance game) {
         this.game = game;
@@ -23,6 +24,11 @@ public class TDWaveInstance {
                 }
             }.runTaskLater(TowerDefense.getInstance(), 0);
         });
+    }
+
+    public void removeEnemie(TDEnemieInstance enemie) {
+        enemieInstances.remove(enemie);
+
     }
 
 }

@@ -1,9 +1,11 @@
 package placeblock.towerdefense.registry;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.EntityType;
 import placeblock.towerdefense.TowerDefense;
 import placeblock.towerdefense.creators.TDTower;
 
@@ -33,9 +35,21 @@ public class TDTowerRegistry {
             return;
         }
         int range = section.getInt("range");
-        double damage = section.getDouble("damage");
+        int damage = section.getInt("damage");
         int cooldown = section.getInt("cooldown");
-        towers.put(name, new TDTower(range, damage, cooldown, name));
+
+        Material boots = Material.AIR;
+        if(section.contains("boots")) boots = Material.valueOf(section.getString("boots"));
+        Material leggings = Material.AIR;
+        if(section.contains("leggings")) leggings = Material.valueOf(section.getString("leggings"));
+        Material chestplate = Material.AIR;
+        if(section.contains("chestplate")) chestplate = Material.valueOf(section.getString("chestplate"));
+        Material helmet = Material.AIR;
+        if(section.contains("helmet")) helmet = Material.valueOf(section.getString("helmet"));
+
+        EntityType type = EntityType.valueOf(section.getString("type"));
+
+        towers.put(name, new TDTower(range, damage, cooldown, name, type, boots, leggings, chestplate, helmet));
     }
 
 }
