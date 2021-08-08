@@ -1,13 +1,27 @@
 package placeblock.towerdefense;
 
+import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
+import placeblock.towerdefense.registry.TDEnemieRegistry;
+import placeblock.towerdefense.registry.TDPlayerRegistry;
+import placeblock.towerdefense.registry.TDTowerRegistry;
 
 public final class TowerDefense extends JavaPlugin {
 
+    @Getter private static TowerDefense instance;
+    @Getter private TDEnemieRegistry enemieRegistry;
+    @Getter private TDTowerRegistry towerRegistry;
+    @Getter private TDPlayerRegistry playerRegistry;
+
     @Override
     public void onEnable() {
-        // Plugin startup logic
+        instance = this;
 
+        enemieRegistry = new TDEnemieRegistry();
+        enemieRegistry.loadEnemies();
+        towerRegistry = new TDTowerRegistry();
+        towerRegistry.loadTowers();
+        playerRegistry = new TDPlayerRegistry();
     }
 
     @Override
