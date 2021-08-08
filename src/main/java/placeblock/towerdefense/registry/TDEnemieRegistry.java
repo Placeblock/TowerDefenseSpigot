@@ -4,7 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import placeblock.towerdefense.instances.TDEnemieInstance;
 import placeblock.towerdefense.TowerDefense;
 import placeblock.towerdefense.creators.TDEnemie;
 
@@ -15,11 +14,8 @@ public class TDEnemieRegistry {
 
     private final HashMap<String, TDEnemie> enemies = new HashMap<>();
 
-    public TDEnemieInstance getInstance(String name) {
-        if(!enemies.containsKey(name)) {
-            Bukkit.getLogger().warning("Tried to get Tower " + name + " which doesnt exists");
-        }
-        return enemies.get(name).getInstance();
+    public TDEnemie getEnemie(String name) {
+        return enemies.get(name);
     }
 
     public void loadEnemies() {
@@ -32,14 +28,14 @@ public class TDEnemieRegistry {
     }
 
     private void loadEnemie(String name, ConfigurationSection section) {
-        if(!section.contains("range") || !section.contains("damage") || !section.contains("cooldown")) {
-            Bukkit.getLogger().warning("Tower " + name + " could not be loaded! Please check your towers.yml");
+        if(!section.contains("health") || !section.contains("speed") || !section.contains("damage")) {
+            Bukkit.getLogger().warning("Enemie " + name + " could not be loaded! Please check your enemies.yml");
             return;
         }
         int health = section.getInt("health");
         int speed = section.getInt("speed");
         int damage = section.getInt("damage");
-        enemies.put(name, new TDEnemie(health, speed, damage));
+        enemies.put(name, new TDEnemie(health, speed, damage, name));
     }
 
 }

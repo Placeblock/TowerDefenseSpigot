@@ -1,11 +1,9 @@
 package placeblock.towerdefense.registry;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import placeblock.towerdefense.instances.TDTowerInstance;
 import placeblock.towerdefense.TowerDefense;
 import placeblock.towerdefense.creators.TDTower;
 
@@ -16,11 +14,8 @@ public class TDTowerRegistry {
 
     private final HashMap<String, TDTower> towers = new HashMap<>();
 
-    public TDTowerInstance getInstance(String name, Location loc) {
-        if(!towers.containsKey(name)) {
-            Bukkit.getLogger().warning("Tried to get Tower " + name + " which doesnt exists");
-        }
-        return towers.get(name).getInstance(loc);
+    public TDTower getTower(String name) {
+        return towers.get(name);
     }
 
     public void loadTowers() {
@@ -40,7 +35,7 @@ public class TDTowerRegistry {
         int range = section.getInt("range");
         double damage = section.getDouble("damage");
         int cooldown = section.getInt("cooldown");
-        towers.put(name, new TDTower(range, damage, cooldown));
+        towers.put(name, new TDTower(range, damage, cooldown, name));
     }
 
 }

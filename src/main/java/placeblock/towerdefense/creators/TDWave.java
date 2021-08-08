@@ -1,5 +1,6 @@
 package placeblock.towerdefense.creators;
 
+import placeblock.towerdefense.instances.TDGameInstance;
 import placeblock.towerdefense.instances.TDWaveInstance;
 
 import java.util.HashMap;
@@ -13,8 +14,8 @@ public class TDWave {
         this.enemies = enemies;
     }
 
-    public TDWaveInstance getInstance() {
-        return new TDWaveInstance(this.enemies);
+    public TDWaveInstance getInstance(TDGameInstance game) {
+        return new TDWaveInstance(this.enemies, game);
     }
 
 }

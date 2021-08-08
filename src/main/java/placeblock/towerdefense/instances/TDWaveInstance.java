@@ -1,6 +1,5 @@
 package placeblock.towerdefense.instances;
 
-import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 import placeblock.towerdefense.TowerDefense;
 import placeblock.towerdefense.creators.TDEnemie;
@@ -10,15 +9,17 @@ import java.util.HashMap;
 
 public class TDWaveInstance {
 
-    ArrayList<TDEnemieInstance> enemieInstances = new ArrayList<>();
+    private final ArrayList<TDEnemieInstance> enemieInstances = new ArrayList<>();
+    private final TDGameInstance game;
 
-    public TDWaveInstance(HashMap<Integer, TDEnemie> enemies) {
+    public TDWaveInstance(HashMap<Integer, TDEnemie> enemies, TDGameInstance game) {
+        this.game = game;
         enemies.forEach((integer, enemie) -> {
             //SPAWNING ENEMIES WITH DELAY
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    enemieInstances.add(new TDEnemieInstance(enemie));
+                    enemieInstances.add(enemie.getInstance(TDWaveInstance.this));
                 }
             }.runTaskLater(TowerDefense.getInstance(), 0);
         });
