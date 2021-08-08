@@ -1,4 +1,4 @@
-package placeblock.towerdefense;
+package placeblock.towerdefense.instances;
 
 import org.bukkit.Location;
 import placeblock.towerdefense.creators.TDTower;

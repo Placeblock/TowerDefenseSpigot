@@ -1,13 +1,20 @@
 package placeblock.towerdefense.creators;
 
-import java.util.ArrayList;
+import placeblock.towerdefense.instances.TDWaveInstance;
+
+import java.util.HashMap;
 
 public class TDWave {
 
-    private final ArrayList<TDEnemie> enemies;
+    //SPAWNING DELAY
+    private final HashMap<Integer, TDEnemie> enemies;
 
-    public TDWave(ArrayList<TDEnemie> enemies) {
+    public TDWave(HashMap<Integer, TDEnemie> enemies) {
         this.enemies = enemies;
+    }
+
+    public TDWaveInstance getInstance() {
+        return new TDWaveInstance(this.enemies);
     }
 
 }

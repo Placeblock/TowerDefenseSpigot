@@ -1,7 +1,7 @@
 package placeblock.towerdefense.creators;
 
 import lombok.AllArgsConstructor;
-import placeblock.towerdefense.TDEnemieInstance;
+import placeblock.towerdefense.instances.TDEnemieInstance;
 
 @AllArgsConstructor
 public class TDEnemie {

@@ -1,7 +1,8 @@
-package placeblock.towerdefense;
+package placeblock.towerdefense.instances;
 
 import lombok.Getter;
 import org.bukkit.entity.Player;
+import placeblock.towerdefense.TDGame;
 
 public class TDPlayer {
 

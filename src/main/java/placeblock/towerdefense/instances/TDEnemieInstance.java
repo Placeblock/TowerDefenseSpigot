@@ -1,4 +1,4 @@
-package placeblock.towerdefense;
+package placeblock.towerdefense.instances;
 
 import placeblock.towerdefense.creators.TDEnemie;
 

@@ -1,15 +1,12 @@
 package placeblock.towerdefense.registry;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import placeblock.towerdefense.TDEnemieInstance;
-import placeblock.towerdefense.TDTowerInstance;
+import placeblock.towerdefense.instances.TDEnemieInstance;
 import placeblock.towerdefense.TowerDefense;
 import placeblock.towerdefense.creators.TDEnemie;
-import placeblock.towerdefense.creators.TDTower;
 
 import java.io.File;
 import java.util.HashMap;

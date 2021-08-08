@@ -1,6 +1,7 @@
 package placeblock.towerdefense;
 
 import org.bukkit.entity.Player;
+import placeblock.towerdefense.instances.TDPlayer;
 
 import java.util.ArrayList;
 

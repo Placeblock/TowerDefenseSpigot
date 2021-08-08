@@ -3,7 +3,7 @@ package placeblock.towerdefense.creators;
 
 import lombok.AllArgsConstructor;
 import org.bukkit.Location;
-import placeblock.towerdefense.TDTowerInstance;
+import placeblock.towerdefense.instances.TDTowerInstance;
 
 @AllArgsConstructor
 public class TDTower {

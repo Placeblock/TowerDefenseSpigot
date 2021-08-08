@@ -5,7 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import placeblock.towerdefense.TDTowerInstance;
+import placeblock.towerdefense.instances.TDTowerInstance;
 import placeblock.towerdefense.TowerDefense;
 import placeblock.towerdefense.creators.TDTower;
 

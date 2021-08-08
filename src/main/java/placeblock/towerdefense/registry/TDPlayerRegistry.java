@@ -2,7 +2,7 @@ package placeblock.towerdefense.registry;
 
 import org.bukkit.entity.Player;
 import placeblock.towerdefense.TDGame;
-import placeblock.towerdefense.TDPlayer;
+import placeblock.towerdefense.instances.TDPlayer;
 
 import java.util.HashMap;
 
