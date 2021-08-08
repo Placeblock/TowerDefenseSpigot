@@ -1,0 +1,6 @@
+name: TowerDefense
+version: ${project.version}
+main: placeblock.towerdefense.TowerDefense
+api-version: 1.17
+authors: [ Placeblock ]
+description: A TowerDefense Plugin for Minecraft
