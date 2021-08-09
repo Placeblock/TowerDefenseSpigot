@@ -1,24 +1,24 @@
-package placeblock.towerdefense.instances;
+package placeblock.towerdefense.game;
 
 import lombok.Getter;
 import org.bukkit.entity.Player;
 import placeblock.towerdefense.TDPath;
 import placeblock.towerdefense.TowerDefense;
-import placeblock.towerdefense.data.TDWave;
 
 import java.util.ArrayList;
 
-public class TDGameInstance {
+public class TDGame {
 
-    private final ArrayList<TDPlayer> players = new ArrayList<>();
-    private final ArrayList<TDTowerInstance> towers = new ArrayList<>();
+    @Getter private final ArrayList<TDPlayer> players = new ArrayList<>();
+    @Getter private final ArrayList<TDTower> towers = new ArrayList<>();
+    @Getter private final ArrayList<TDEnemie> enemies = new ArrayList<>();
 
-    private final ArrayList<TDWave> waves;
+    private final ArrayList<String> waves;
     @Getter private final TDPath path;
-    @Getter private TDWaveInstance activeWave;
+    @Getter private TDWave activeWave;
     private int lives;
 
-    public TDGameInstance(ArrayList<Player> players, TDPath path, ArrayList<TDWave> waves, int lives) {
+    public TDGame(ArrayList<Player> players, TDPath path, ArrayList<String> waves, int lives) {
         this.path = path;
         this.waves = waves;
         this.lives = lives;
@@ -27,11 +27,11 @@ public class TDGameInstance {
         }
 
         //TODO: DELAY SPAWN OF FIRST WAVE
-        activeWave = waves.get(0).getInstance(this);
+        activeWave = new TDWave(waves.get(0), this);
     }
 
-    public void damage(TDEnemieInstance enemie) {
-        lives -= enemie.getEnemie().getDamage();
+    public void damage(TDEnemie enemie) {
+        lives -= enemie.getDamage();
         if(lives < 0) {
             //TODO: END GAME
         }

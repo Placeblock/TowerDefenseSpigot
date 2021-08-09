@@ -5,7 +5,7 @@ import org.bukkit.command.Command;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import placeblock.towerdefense.TowerDefense;
+import placeblock.towerdefense.game.TDTower;
 
 public class TowerSubCommand extends SubCommand {
 
@@ -25,7 +25,7 @@ public class TowerSubCommand extends SubCommand {
         Material boots = Material.AIR;
         if(armorcontents[0] != null) boots = armorcontents[3].getType();
 
-        TowerDefense.getInstance().getTowerRegistry().registerTower(
+        TDTower.registerTower(
                 Integer.parseInt(args[3]),
                 Integer.parseInt(args[4]),
                 Integer.parseInt(args[5]),

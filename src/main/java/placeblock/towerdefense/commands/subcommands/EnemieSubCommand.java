@@ -1,11 +1,10 @@
 package placeblock.towerdefense.commands.subcommands;
 
-import org.apache.commons.lang.StringUtils;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import placeblock.towerdefense.TowerDefense;
+import placeblock.towerdefense.game.TDEnemie;
 
 public class EnemieSubCommand extends SubCommand {
 
@@ -25,7 +24,7 @@ public class EnemieSubCommand extends SubCommand {
         Material boots = Material.AIR;
         if(armorcontents[0] != null) boots = armorcontents[3].getType();
 
-        TowerDefense.getInstance().getEnemieRegistry().registerEnemie(
+        TDEnemie.registerEnemie(
                 Integer.parseInt(args[2]),
                 Integer.parseInt(args[3]),
                 Integer.parseInt(args[4]),

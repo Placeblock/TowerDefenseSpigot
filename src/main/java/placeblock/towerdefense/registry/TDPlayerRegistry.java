@@ -1,8 +1,8 @@
 package placeblock.towerdefense.registry;
 
 import org.bukkit.entity.Player;
-import placeblock.towerdefense.instances.TDGameInstance;
-import placeblock.towerdefense.instances.TDPlayer;
+import placeblock.towerdefense.game.TDGame;
+import placeblock.towerdefense.game.TDPlayer;
 
 import java.util.HashMap;
 
@@ -10,7 +10,7 @@ public class TDPlayerRegistry {
 
     HashMap<Player, TDPlayer> players = new HashMap<>();
 
-    public TDPlayer registerPlayer(Player p, TDGameInstance game) {
+    public TDPlayer registerPlayer(Player p, TDGame game) {
         if(players.containsKey(p)) {
             unregisterPlayer(p);
         }

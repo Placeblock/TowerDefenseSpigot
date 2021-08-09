@@ -1,6 +1,6 @@
 package placeblock.towerdefense.registry;
 
-import placeblock.towerdefense.data.TDGame;
+import placeblock.towerdefense.game.TDGame;
 
 import java.util.HashMap;
 
