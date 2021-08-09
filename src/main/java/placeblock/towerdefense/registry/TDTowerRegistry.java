@@ -7,9 +7,10 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import placeblock.towerdefense.TowerDefense;
-import placeblock.towerdefense.creators.TDTower;
+import placeblock.towerdefense.data.TDTower;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 
 public class TDTowerRegistry {
@@ -19,6 +20,30 @@ public class TDTowerRegistry {
     public TDTower getTower(String name) {
         return towers.get(name);
     }
+
+    public void registerTower(int range, int damage, int cooldown, String name, Material helmet, Material chestplate, Material leggings, Material boots, EntityType type) {
+        File towersfile = new File(TowerDefense.getInstance().getDataFolder() + "/towers.yml");
+        FileConfiguration towers = YamlConfiguration.loadConfiguration(towersfile);
+
+        towers.set(name + ".range", range);
+        towers.set(name + ".damage", damage);
+        towers.set(name + ".cooldown", cooldown);
+        towers.set(name + ".name", name);
+        towers.set(name + ".boots", boots.toString());
+        towers.set(name + ".leggings", leggings.toString());
+        towers.set(name + ".chestplate", chestplate.toString());
+        towers.set(name + ".helmet", helmet.toString());
+        towers.set(name + ".type", type.toString());
+
+        this.towers.put(name, new TDTower(range, damage, cooldown, name, type, boots, leggings, chestplate, helmet));
+
+        try {
+            towers.save(towersfile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public void loadTowers() {
         File towersfile = new File(TowerDefense.getInstance().getDataFolder() + "/towers.yml");

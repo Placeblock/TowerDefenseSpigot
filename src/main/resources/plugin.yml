@@ -4,3 +4,8 @@ main: placeblock.towerdefense.TowerDefense
 api-version: 1.17
 authors: [ Placeblock ]
 description: A TowerDefense Plugin for Minecraft
+commands:
+  towerdefense:
+    description: The Main Tower Defense Command
+    aliases:
+      - td

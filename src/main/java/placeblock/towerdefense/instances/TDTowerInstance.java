@@ -9,10 +9,8 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import placeblock.towerdefense.TowerDefense;
-import placeblock.towerdefense.creators.TDTower;
+import placeblock.towerdefense.data.TDTower;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.TreeMap;
 
 public class TDTowerInstance {
@@ -38,7 +36,7 @@ public class TDTowerInstance {
             public void run() {
                 shoot();
             }
-        }.runTaskTimer(TowerDefense.getInstance(), 0, tower.getCooldown());
+        }.runTaskTimer(TowerDefense.getInstance(), 0, this.tower.getCooldown());
     }
 
     public Location getLocation() {

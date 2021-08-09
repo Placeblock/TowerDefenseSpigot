@@ -3,7 +3,7 @@ package placeblock.towerdefense.instances;
 import lombok.Getter;
 import org.bukkit.scheduler.BukkitRunnable;
 import placeblock.towerdefense.TowerDefense;
-import placeblock.towerdefense.creators.TDEnemie;
+import placeblock.towerdefense.data.TDEnemie;
 
 import java.util.ArrayList;
 import java.util.HashMap;

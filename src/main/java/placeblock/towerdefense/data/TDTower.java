@@ -1,4 +1,4 @@
-package placeblock.towerdefense.creators;
+package placeblock.towerdefense.data;
 
 
 import lombok.AllArgsConstructor;

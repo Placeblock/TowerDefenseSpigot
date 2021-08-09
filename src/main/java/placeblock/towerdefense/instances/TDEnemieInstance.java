@@ -10,7 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
-import placeblock.towerdefense.creators.TDEnemie;
+import placeblock.towerdefense.data.TDEnemie;
 import placeblock.towerdefense.util.BloodParticles;
 
 public class TDEnemieInstance implements Listener {

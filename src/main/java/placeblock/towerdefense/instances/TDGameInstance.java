@@ -4,7 +4,7 @@ import lombok.Getter;
 import org.bukkit.entity.Player;
 import placeblock.towerdefense.TDPath;
 import placeblock.towerdefense.TowerDefense;
-import placeblock.towerdefense.creators.TDWave;
+import placeblock.towerdefense.data.TDWave;
 
 import java.util.ArrayList;
 
