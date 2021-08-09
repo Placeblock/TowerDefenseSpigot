@@ -19,6 +19,7 @@ import java.util.TreeMap;
 
 public class TDTower {
 
+    private final TDPlayer owner;
     private final Location loc;
     private final TDGame game;
     private final NPC npc;
@@ -35,7 +36,8 @@ public class TDTower {
     private final static File file = new File(TowerDefense.getInstance().getDataFolder() + "/towers.yml");
     private final static YamlConfiguration data = YamlConfiguration.loadConfiguration(file);
 
-    public TDTower(String type, Location location, TDGame game) {
+    public TDTower(String type, Location location, TDGame game, TDPlayer owner) {
+        this.owner = owner;
         this.loc = location;
         this.game = game;
         this.type = type;
@@ -121,6 +123,10 @@ public class TDTower {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void remove() {
+        this.npc.destroy();
     }
 
     public static boolean exists(String type) {

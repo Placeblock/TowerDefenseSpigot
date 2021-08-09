@@ -3,6 +3,7 @@ package placeblock.towerdefense;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 import placeblock.towerdefense.commands.TDCommand;
+import placeblock.towerdefense.game.TDGame;
 import placeblock.towerdefense.registry.TDPlayerRegistry;
 
 public final class TowerDefense extends JavaPlugin {
@@ -23,6 +24,6 @@ public final class TowerDefense extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        TDGame.unregisterAll();
     }
 }

@@ -84,8 +84,8 @@ public class TDEnemie implements Listener {
         npc.getOrAddTrait(Equipment.class).set(Equipment.EquipmentSlot.LEGGINGS, new ItemStack(leggings, 1));
         npc.getOrAddTrait(Equipment.class).set(Equipment.EquipmentSlot.CHESTPLATE, new ItemStack(chestplate, 1));
         npc.getOrAddTrait(Equipment.class).set(Equipment.EquipmentSlot.HELMET, new ItemStack(helmet, 1));
-        npc.getNavigator().setTarget(wave.getGame().getPath().getLocation(pathindex));
-        npc.spawn(wave.getGame().getPath().getLocation(0));
+        npc.getNavigator().setTarget(wave.getGame().getPath().get(pathindex));
+        npc.spawn(wave.getGame().getPath().get(0));
 
         if(npc.isSpawned()) {
             npc.getEntity().setInvulnerable(true);
@@ -110,25 +110,22 @@ public class TDEnemie implements Listener {
     @EventHandler
     public void onFinish(NavigationCompleteEvent e) {
         pathindex++;
-        if(wave.getGame().getPath().getLocation(pathindex) == null) {
+        if(wave.getGame().getPath().get(pathindex) == null) {
             remove();
             this.wave.getGame().damage(this);
             return;
         }
-        npc.getNavigator().setTarget(wave.getGame().getPath().getLocation(pathindex));
+        npc.getNavigator().setTarget(wave.getGame().getPath().get(pathindex));
     }
 
     public void remove() {
         this.npc.destroy();
-        this.wave.removeEnemie(this);
     }
 
     public Location getLocation() {
         if(!this.npc.isSpawned()) return null;
         return this.npc.getEntity().getLocation();
     }
-
-
 
     public static void registerEnemie(int health, int speed, int damage, String name, Material boots, Material leggings, Material chestplate, Material helmet) {
         data.set(name + ".health", health);

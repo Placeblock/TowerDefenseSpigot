@@ -5,11 +5,14 @@ import org.apache.commons.lang.StringUtils;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import placeblock.towerdefense.TowerDefense;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.List;
 
 public class TDWave {
 
@@ -17,9 +20,13 @@ public class TDWave {
 
     private final static File file = new File(TowerDefense.getInstance().getDataFolder() + "/wave.yml");
     private final static YamlConfiguration data = YamlConfiguration.loadConfiguration(file);
+    @Getter private final String name;
+
+    @Getter private final ArrayList<BukkitTask> delayedspawntasks = new ArrayList<>();
 
     public TDWave(String name, TDGame game) {
         this.game = game;
+        this.name = name;
 
         ConfigurationSection wavedata = data.getConfigurationSection(name);
         for(String key : wavedata.getKeys(false)) {
@@ -27,30 +34,46 @@ public class TDWave {
             Integer time = Integer.valueOf(key);
             if(time < 0) continue;
 
-            new BukkitRunnable() {
+            delayedspawntasks.add(new BukkitRunnable() {
                 @Override
                 public void run() {
                     for(String timeenemie : wavedata.getStringList(name + "." + time)) {
-                        TDWave.this.game.getEnemies().add(new TDEnemie(timeenemie, TDWave.this));
+                        TDEnemie enemie = new TDEnemie(timeenemie, TDWave.this);
+                        TDWave.this.game.getEnemies().add(enemie);
+                        delayedspawntasks.remove(this);
                     }
                 }
-            }.runTaskLater(TowerDefense.getInstance(), time);
+            }.runTaskLater(TowerDefense.getInstance(), time));
         }
-    }
-
-    public void removeEnemie(TDEnemie enemie) {
-        this.game.getEnemies().remove(enemie);
-    }
-
-
-    public static void registerWave(String name, HashMap<Integer, ArrayList<String>> enemies) {
-        enemies.forEach((time, timeenemies) -> {
-            data.set(name + "." + time, timeenemies);
-        });
     }
 
     public static boolean exists(String name) {
         return data.contains(name);
+    }
+
+    public static void addTimeEnemie(String wave, Integer time, String enemie) {
+        if(!exists(wave)) {
+            data.createSection(wave);
+        }
+        if(data.getConfigurationSection(wave).contains(time.toString())) {
+            List<String> enemies = data.getConfigurationSection(wave).getStringList(time.toString());
+            enemies.add(enemie);
+            data.getConfigurationSection(wave).set(time.toString(), enemies);
+        }else {
+            data.getConfigurationSection(wave).set(time.toString(), new ArrayList<>(Arrays.asList(enemie)));
+        }
+
+        try {
+            data.save(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void delete() {
+        for(BukkitTask task : delayedspawntasks) {
+            task.cancel();
+        }
     }
 
 }

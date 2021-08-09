@@ -4,9 +4,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import placeblock.towerdefense.commands.subcommands.EnemieSubCommand;
-import placeblock.towerdefense.commands.subcommands.SubCommand;
-import placeblock.towerdefense.commands.subcommands.TowerSubCommand;
+import placeblock.towerdefense.commands.subcommands.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,5 +37,7 @@ public class TDCommand implements CommandExecutor {
     public void registerCommands() {
         registerCommand("createenemie", new EnemieSubCommand());
         registerCommand("createtower", new TowerSubCommand());
+        registerCommand("addwaveenemie", new WaveSubCommand());
+        registerCommand("start", new GameSubCommand());
     }
 }

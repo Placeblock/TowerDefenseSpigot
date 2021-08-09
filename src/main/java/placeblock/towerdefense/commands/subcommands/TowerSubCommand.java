@@ -14,6 +14,7 @@ public class TowerSubCommand extends SubCommand {
     public void onCommand(Player p, Command command, String[] args) {
         if(!args[1].matches("\\d+") || !args[2].matches("\\d+") || !args[3].matches("\\d+")) {
             p.sendMessage("Wrong Usage! [name] [type] [range] [damage] [cooldown]");
+            return;
         }
         ItemStack[] armorcontents = p.getInventory().getArmorContents();
         Material helmet = Material.AIR;
@@ -40,6 +41,6 @@ public class TowerSubCommand extends SubCommand {
 
     @Override
     public String getPermission() {
-        return "create.enemie";
+        return "create.tower";
     }
 }

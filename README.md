@@ -8,8 +8,8 @@ if i will ever finish this Project!
 
 **Planned Features:**
 
-* Create your own Towers!
-* Create your own waves and enemies!
+* Create your own Towers! :heavy_check_mark:
+* Create your own waves and enemies! :heavy_check_mark:
 * Rewards (Vault)
 * Custom Maps (Waypoints)
 * Blocks where Towers can placed on!

@@ -1,33 +1,64 @@
 package placeblock.towerdefense.game;
 
 import lombok.Getter;
+import org.bukkit.Location;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import placeblock.towerdefense.TDPath;
 import placeblock.towerdefense.TowerDefense;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 public class TDGame {
+    private final static ArrayList<TDGame> games = new ArrayList<>();
+
+    private final static File file = new File(TowerDefense.getInstance().getDataFolder() + "/levels.yml");
+    private final static YamlConfiguration data = YamlConfiguration.loadConfiguration(file);
+    private final static File gamefile = new File(TowerDefense.getInstance().getDataFolder() + "/games.yml");
+    private final static YamlConfiguration gamedata = YamlConfiguration.loadConfiguration(gamefile);
+
+    @Getter private final String name;
 
     @Getter private final ArrayList<TDPlayer> players = new ArrayList<>();
     @Getter private final ArrayList<TDTower> towers = new ArrayList<>();
     @Getter private final ArrayList<TDEnemie> enemies = new ArrayList<>();
 
-    private final ArrayList<String> waves;
-    @Getter private final TDPath path;
+    @Getter private final ArrayList<Location> path;
+
+    private final List<String> waves;
     @Getter private TDWave activeWave;
+
+    private int startlives;
     private int lives;
 
-    public TDGame(ArrayList<Player> players, TDPath path, ArrayList<String> waves, int lives) {
-        this.path = path;
-        this.waves = waves;
-        this.lives = lives;
+    public TDGame(String name, String level, ArrayList<Player> players) {
+        this.name = name;
+
+        ConfigurationSection configSection = data.getConfigurationSection(level);
+        this.startlives = configSection.getInt("lives");
+        this.lives = this.startlives;
+        this.waves = configSection.getStringList("waves");
+
+        ConfigurationSection gameConfigSection = gamedata.getConfigurationSection(name);
+        this.path = (ArrayList<Location>) gameConfigSection.getList("path");
+
         for(Player player : players) {
             this.players.add(TowerDefense.getInstance().getPlayerRegistry().registerPlayer(player, this));
         }
 
         //TODO: DELAY SPAWN OF FIRST WAVE
         activeWave = new TDWave(waves.get(0), this);
+
+        games.add(this);
+    }
+
+    public void nextWave() {
+        if(waves.size() - 1 == waves.indexOf(activeWave.getName())) {
+            delete();
+        }
+        activeWave = new TDWave(waves.get(waves.indexOf(activeWave.getName()) + 1),this);
     }
 
     public void damage(TDEnemie enemie) {
@@ -45,4 +76,21 @@ public class TDGame {
         }
     }
 
+    public void delete() {
+        for(TDEnemie enemie : enemies) {
+            enemie.remove();
+        }
+        enemies.clear();
+        for(TDTower tower : towers) {
+            tower.remove();
+        }
+        towers.clear();
+        games.remove(this);
+    }
+
+    public static void unregisterAll() {
+        for(TDGame game : games) {
+            game.delete();
+        }
+    }
 }

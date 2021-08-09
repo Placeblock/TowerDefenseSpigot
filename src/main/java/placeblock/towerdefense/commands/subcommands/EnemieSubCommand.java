@@ -13,6 +13,7 @@ public class EnemieSubCommand extends SubCommand {
     public void onCommand(Player p, Command command, String[] args) {
         if(!args[1].matches("\\d+") || !args[2].matches("\\d+") || !args[3].matches("\\d+")) {
             p.sendMessage("Wrong Usage! [name] [health] [speed] [damage]");
+            return;
         }
         ItemStack[] armorcontents = p.getInventory().getArmorContents();
         Material helmet = Material.AIR;
