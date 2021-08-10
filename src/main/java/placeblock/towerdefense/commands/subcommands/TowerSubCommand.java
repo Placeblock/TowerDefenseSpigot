@@ -12,8 +12,8 @@ public class TowerSubCommand extends SubCommand {
 
     @Override
     public void onCommand(Player p, Command command, String[] args) {
-        if(!args[1].matches("\\d+") || !args[2].matches("\\d+") || !args[3].matches("\\d+")) {
-            p.sendMessage("Wrong Usage! [name] [type] [range] [damage] [cooldown]");
+        if(!args[2].matches("\\d+") || !args[3].matches("\\d+") || !args[4].matches("\\d+")) {
+            p.sendMessage("Wrong Usage! [name] [range] [damage] [cooldown]");
             return;
         }
         ItemStack[] armorcontents = p.getInventory().getArmorContents();
@@ -27,15 +27,14 @@ public class TowerSubCommand extends SubCommand {
         if(armorcontents[0] != null) boots = armorcontents[3].getType();
 
         TDTower.registerTower(
+                Integer.parseInt(args[2]),
                 Integer.parseInt(args[3]),
                 Integer.parseInt(args[4]),
-                Integer.parseInt(args[5]),
                 args[1],
                 helmet,
                 leggings,
                 chestplate,
-                boots,
-                EntityType.valueOf(args[2])
+                boots
         );
     }
 

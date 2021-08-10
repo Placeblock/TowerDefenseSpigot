@@ -7,6 +7,8 @@ import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.EntityCreature;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EnumItemSlot;
+import net.minecraft.world.entity.ai.goal.PathfinderGoalFloat;
+import net.minecraft.world.entity.ai.goal.PathfinderGoalMeleeAttack;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
@@ -17,26 +19,27 @@ import placeblock.towerdefense.util.PathfinderGoalLoc;
 
 public class TDEnemieEntity extends EntityCreature {
 
-    private final Double speed;
     @Getter private final TDEnemie enemie;
 
-    public TDEnemieEntity(EntityTypes<? extends EntityCreature> entitytypes, Location location, Double speed, TDEnemie enemie) {
+    public TDEnemieEntity(EntityTypes<? extends EntityCreature> entitytypes, Location location, TDEnemie enemie) {
         super(entitytypes, ((CraftWorld) location.getWorld()).getHandle());
         this.setPosition(location.getX(), location.getY(), location.getZ());
         this.setInvulnerable(true);
-        this.speed = speed;
+        this.setCanPickupLoot(false);
+        this.collides = false;
         this.setCustomNameVisible(true);
-        this.setTargetLocation(location);
         this.enemie = enemie;
+
+        this.bP.a(0, new PathfinderGoalLoc(this, enemie.getSpeed(), enemie));
     }
 
     @Override
     protected void initPathfinder() {
     }
 
-    public void setTargetLocation(Location location) {
-        this.bP.a();
-        this.bP.a(0, new PathfinderGoalLoc(this, location.getX(), location.getY(), location.getZ(), this.speed));
+    @Override
+    public void g(double d0, double d1, double d2) {
+        return;
     }
 
     public void setItem(EnumItemSlot slot, ItemStack item) {

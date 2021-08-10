@@ -2,6 +2,7 @@ package placeblock.towerdefense.commands.subcommands;
 
 import org.bukkit.Material;
 import org.bukkit.command.Command;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import placeblock.towerdefense.game.TDEnemie;
@@ -11,8 +12,8 @@ public class EnemieSubCommand extends SubCommand {
 
     @Override
     public void onCommand(Player p, Command command, String[] args) {
-        if(!args[1].matches("\\d+") || !args[2].matches("\\d+") || !args[3].matches("\\d+")) {
-            p.sendMessage("Wrong Usage! [name] [health] [speed] [damage]");
+        if(!args[3].matches("\\d+") || !args[4].matches("\\d+") || !args[5].matches("\\d+")) {
+            p.sendMessage("Wrong Usage! [name] [type] [health] [speed] [damage]");
             return;
         }
         ItemStack[] armorcontents = p.getInventory().getArmorContents();
@@ -26,14 +27,15 @@ public class EnemieSubCommand extends SubCommand {
         if(armorcontents[0] != null) boots = armorcontents[3].getType();
 
         TDEnemie.registerEnemie(
-                Integer.parseInt(args[2]),
                 Integer.parseInt(args[3]),
                 Integer.parseInt(args[4]),
+                Integer.parseInt(args[5]),
                 args[1],
                 helmet,
                 leggings,
                 chestplate,
-                boots
+                boots,
+                EntityType.valueOf(args[2])
         );
     }
 

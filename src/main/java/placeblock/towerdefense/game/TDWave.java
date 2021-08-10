@@ -35,14 +35,15 @@ public class TDWave {
             Integer time = Integer.valueOf(key);
             if(time < 0) continue;
 
-            for(String timeenemie : wavedata.getStringList(name + "." + time)) {
+            for(String timeenemie : wavedata.getStringList(key)) {
                 spawnenemies.add(timeenemie);
             }
 
             delayedspawntasks.add(new BukkitRunnable() {
                 @Override
                 public void run() {
-                    for(String timeenemie : wavedata.getStringList(name + "." + time)) {
+                    System.out.println("SPAWNING: " + key);
+                    for(String timeenemie : wavedata.getStringList(key)) {
                         TDEnemie enemie = new TDEnemie(timeenemie, TDWave.this);
                         TDWave.this.game.getEnemies().add(enemie);
                         delayedspawntasks.remove(this);
@@ -52,10 +53,16 @@ public class TDWave {
         }
     }
 
-    public void killEntity(String name) {
+    public void killEntity(String name, boolean startnewwave) {
         spawnenemies.remove(name);
-        if(spawnenemies.size() == 0) {
+        if(spawnenemies.size() == 0 && startnewwave) {
             this.game.nextWave();
+        }
+    }
+
+    public void delete() {
+        for(BukkitTask task : delayedspawntasks) {
+            task.cancel();
         }
     }
 
@@ -75,16 +82,14 @@ public class TDWave {
             data.getConfigurationSection(wave).set(time.toString(), new ArrayList<>(Arrays.asList(enemie)));
         }
 
+        saveConfig();
+    }
+
+    public static void saveConfig() {
         try {
             data.save(file);
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    public void delete() {
-        for(BukkitTask task : delayedspawntasks) {
-            task.cancel();
         }
     }
 

@@ -9,6 +9,7 @@ import org.bukkit.event.Listener;
 import placeblock.towerdefense.TowerDefense;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,6 +52,7 @@ public class TDGame implements Listener {
 
         //TODO: DELAY SPAWN OF FIRST WAVE
         activeWave = new TDWave(waves.get(0), this);
+        System.out.println(activeWave);
 
         games.add(this);
     }
@@ -79,20 +81,44 @@ public class TDGame implements Listener {
 
     public void delete() {
         waves.clear();
+        activeWave.delete();
         for(TDEnemie enemie : enemies) {
-            enemie.remove();
+            enemie.delete();
         }
         enemies.clear();
         for(TDTower tower : towers) {
             tower.remove();
         }
         towers.clear();
-        games.remove(this);
     }
 
     public static void unregisterAll() {
         for(TDGame game : games) {
             game.delete();
+        }
+        games.clear();
+    }
+
+    public static void addWaypoint(String name, Location location) {
+        System.out.println(gamedata.getKeys(false).toArray()[0]);
+        System.out.println(name);
+        List<Location> locations = new ArrayList<>();
+        if(!gamedata.getConfigurationSection(name).contains("path")) {
+            gamedata.getConfigurationSection(name).createSection("path");
+        }else {
+            locations = (List<Location>) gamedata.getList(name + ".path");
+        }
+        locations.add(location);
+        gamedata.set(name + ".path", locations);
+        saveConfig();
+    }
+
+    public static void saveConfig() {
+        try {
+            data.save(file);
+            gamedata.save(gamefile);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

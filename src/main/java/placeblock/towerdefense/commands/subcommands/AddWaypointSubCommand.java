@@ -7,14 +7,14 @@ import placeblock.towerdefense.game.TDGame;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class GameSubCommand extends SubCommand {
+public class AddWaypointSubCommand extends SubCommand {
     @Override
     public void onCommand(Player player, Command command, String[] args) {
-        new TDGame(args[1], args[2], new ArrayList<>(Arrays.asList(player)));
+        TDGame.addWaypoint(args[1], player.getLocation());
     }
 
     @Override
     public String getPermission() {
-        return "start";
+        return "create.addwaypoint";
     }
 }

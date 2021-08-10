@@ -27,7 +27,6 @@ import java.util.TreeMap;
 import java.util.UUID;
 
 public class TDTower {
-
     private final TDPlayer owner;
     @Getter private final Location loc;
     private final TDGame game;
@@ -111,27 +110,29 @@ public class TDTower {
         enemies.descendingMap().get(0).damage(this);
     }
 
+    public void remove() {
+        this.entity.die();
+    }
 
-    public static void registerTower(int range, int damage, int cooldown, String name, Material helmet, Material chestplate, Material leggings, Material boots, EntityType type) {
+
+    public static void registerTower(int range, int damage, int cooldown, String name, Material helmet, Material chestplate, Material leggings, Material boots) {
         data.set(name + ".range", range);
         data.set(name + ".damage", damage);
         data.set(name + ".cooldown", cooldown);
-        data.set(name + ".type", name);
         data.set(name + ".boots", boots.toString());
         data.set(name + ".leggings", leggings.toString());
         data.set(name + ".chestplate", chestplate.toString());
         data.set(name + ".helmet", helmet.toString());
-        data.set(name + ".entityType", type.toString());
 
+        saveConfig();
+    }
+
+    public static void saveConfig() {
         try {
             data.save(file);
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public void remove() {
-        this.entity.die();
     }
 
     public static boolean exists(String type) {

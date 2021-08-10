@@ -24,7 +24,10 @@ public class TDCommand implements CommandExecutor {
             return false;
         }
 
-        if(!p.hasPermission("towerdefense." + commands.get(args[0]).getPermission()))
+        if(!p.hasPermission("towerdefense." + commands.get(args[0]).getPermission())) {
+            p.sendMessage("§cYou have no Permission to perform this command!");
+            return false;
+        }
 
         commands.get(args[0]).onCommand(p, command, args);
         return true;
@@ -38,6 +41,7 @@ public class TDCommand implements CommandExecutor {
         registerCommand("createenemie", new EnemieSubCommand());
         registerCommand("createtower", new TowerSubCommand());
         registerCommand("addwaveenemie", new WaveSubCommand());
+        registerCommand("addwaypoint", new AddWaypointSubCommand());
         registerCommand("start", new GameSubCommand());
     }
 }
