@@ -5,14 +5,15 @@ import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 import placeblock.towerdefense.TowerDefense;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TDGame {
-    private final static ArrayList<TDGame> games = new ArrayList<>();
+public class TDGame implements Listener {
+    @Getter private final static ArrayList<TDGame> games = new ArrayList<>();
 
     private final static File file = new File(TowerDefense.getInstance().getDataFolder() + "/levels.yml");
     private final static YamlConfiguration data = YamlConfiguration.loadConfiguration(file);
@@ -77,6 +78,7 @@ public class TDGame {
     }
 
     public void delete() {
+        waves.clear();
         for(TDEnemie enemie : enemies) {
             enemie.remove();
         }

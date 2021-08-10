@@ -1,28 +1,37 @@
 package placeblock.towerdefense.game;
 
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 import lombok.Getter;
-import net.citizensnpcs.api.CitizensAPI;
-import net.citizensnpcs.api.npc.NPC;
-import net.citizensnpcs.api.trait.trait.Equipment;
+import net.minecraft.network.chat.IChatBaseComponent;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.server.level.WorldServer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.monster.EntityZombie;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.entity.EntityType;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import placeblock.towerdefense.TowerDefense;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.TreeMap;
+import java.util.UUID;
 
 public class TDTower {
 
     private final TDPlayer owner;
-    private final Location loc;
+    @Getter private final Location loc;
     private final TDGame game;
-    private final NPC npc;
+    @Getter private final EntityPlayer entity;
     private final String type;
     private final int range;
     @Getter private final int damage;
@@ -74,12 +83,14 @@ public class TDTower {
 
         if(!entityType.isSpawnable()) entityType = EntityType.ZOMBIE;
 
-        npc = CitizensAPI.getNPCRegistry().createNPC(entityType, type);
-        npc.getOrAddTrait(Equipment.class).set(Equipment.EquipmentSlot.BOOTS, new ItemStack(boots, 1));
-        npc.getOrAddTrait(Equipment.class).set(Equipment.EquipmentSlot.LEGGINGS, new ItemStack(leggings, 1));
-        npc.getOrAddTrait(Equipment.class).set(Equipment.EquipmentSlot.CHESTPLATE, new ItemStack(chestplate, 1));
-        npc.getOrAddTrait(Equipment.class).set(Equipment.EquipmentSlot.HELMET, new ItemStack(helmet, 1));
-        npc.spawn(location);
+
+        MinecraftServer nmsServer = ((CraftServer) Bukkit.getServer()).getServer();
+        WorldServer nmsWorld = ((CraftWorld) location.getWorld()).getHandle();
+        GameProfile gameProfile = new GameProfile(UUID.randomUUID(), type);
+        gameProfile.getProperties().put("textxures", new Property("textures", "ewogICJ0aW1lc3RhbXAiIDogMTYwOTA0NTY1OTE3NywKICAicHJvZmlsZUlkIiA6ICJiYzRlZGZiNWYzNmM0OGE3YWM5ZjFhMzlkYzIzZjRmOCIsCiAgInByb2ZpbGVOYW1lIiA6ICI4YWNhNjgwYjIyNDYxMzQwIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzE2YzVhZjIzYmM0YmZmZmY5NzIyZTZlN2VjYTc0MjhiOWRmY2VlYjM3Y2MxNmI1ODgyYjVhY2I2YzdkZDgwZTciCiAgICB9CiAgfQp9",
+                "IEnd6B63PO/Y3ApX0NC5xD6X486/CWCO810akzufb+5DmhGELWS9QB3y8arBLuPJWc5zIIZtG88Re5QmQ9e/zGXrUS1hl+adzqJC8ghpiQ8+h217I0MFuik8kepvP01fs5IM/VO8JuB44ENAMeVaqTDC3UpSTZwDgBOAitMm0JwjwWaUKP/COehEvhI47xZEevEha/uGdUn/S7oqCHC7lLwUkkNFlKRTZ6bgo9ul7HA0HmOxvvKKaPpyxT7nXPkY8dfmYKLhhAsdRmiISRQ5tx/vU5/wLUJJGo8OqHwSABmct2hopQ+vxAQyjj+uRBpGAWESm94uNNHy/5ympyUZFXI9dCFgQKmywPMEZLnXl6Jjnbq128VcX2jazDKw3rfSh/lGoxZRh4uuB5Hpa8Co974KsOFs3FzSHJ+umTtwF6IhQZpxvP3QIAmqTUakvlmuif4hhYEpeg7LqpUKjPoE03FcGfMZc3tt6QWfC2p78gM14vxJwmrpFWkUIU7YtfAKtT+h2MI771it4cDrxIckjwwYhxnTQbbtgd0+f8X8wPWazCuLG1GGBNmM+CYFDYe5uHbk26w2wqd675yoEmLthaHr+qzE7onURtlhYjB8+ZK2unnYxU8nzFSE3+vGLHkhiLw+XoHGnqymHxlfYZLhvGu1AL4x2mZbgDaFFpxNUUE="));
+        entity = new EntityPlayer(nmsServer, nmsWorld, gameProfile);
+        entity.setPosition(location.getX(), location.getY(), location.getZ());
 
         new BukkitRunnable() {
             @Override
@@ -89,17 +100,11 @@ public class TDTower {
         }.runTaskTimer(TowerDefense.getInstance(), 0, this.cooldown);
     }
 
-    public Location getLocation() {
-        if(!this.npc.isSpawned()) return null;
-        return this.npc.getEntity().getLocation();
-    }
-
     public void shoot() {
         if(this.game.getActiveWave() == null) return;
-        if(!this.npc.isSpawned()) return;
         TreeMap<Integer, TDEnemie> enemies = new TreeMap<>();
         for(TDEnemie enemie : this.game.getEnemies()) {
-            if(this.npc.getEntity().getLocation().distance(enemie.getLocation()) > this.range) continue;
+            if(this.loc.distance(new Location(enemie.getEntity().getWorld().getWorld(), enemie.getEntity().locX(), enemie.getEntity().locY(), enemie.getEntity().locZ())) > this.range) continue;
             enemies.put(enemie.getDamage(), enemie);
         }
         if(enemies.size() == 0) return;
@@ -126,7 +131,7 @@ public class TDTower {
     }
 
     public void remove() {
-        this.npc.destroy();
+        this.entity.die();
     }
 
     public static boolean exists(String type) {

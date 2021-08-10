@@ -23,6 +23,7 @@ public class TDWave {
     @Getter private final String name;
 
     @Getter private final ArrayList<BukkitTask> delayedspawntasks = new ArrayList<>();
+    @Getter private final ArrayList<String> spawnenemies = new ArrayList<>();
 
     public TDWave(String name, TDGame game) {
         this.game = game;
@@ -34,6 +35,10 @@ public class TDWave {
             Integer time = Integer.valueOf(key);
             if(time < 0) continue;
 
+            for(String timeenemie : wavedata.getStringList(name + "." + time)) {
+                spawnenemies.add(timeenemie);
+            }
+
             delayedspawntasks.add(new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -44,6 +49,13 @@ public class TDWave {
                     }
                 }
             }.runTaskLater(TowerDefense.getInstance(), time));
+        }
+    }
+
+    public void killEntity(String name) {
+        spawnenemies.remove(name);
+        if(spawnenemies.size() == 0) {
+            this.game.nextWave();
         }
     }
 

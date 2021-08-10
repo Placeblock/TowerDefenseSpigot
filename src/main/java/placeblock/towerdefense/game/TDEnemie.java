@@ -1,21 +1,15 @@
 package placeblock.towerdefense.game;
 
 import lombok.Getter;
-import net.citizensnpcs.api.CitizensAPI;
-import net.citizensnpcs.api.ai.event.NavigationCompleteEvent;
-import net.citizensnpcs.api.npc.NPC;
-import net.citizensnpcs.api.trait.trait.Equipment;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.EnumItemSlot;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import placeblock.towerdefense.TowerDefense;
 import placeblock.towerdefense.util.BloodParticles;
 
@@ -25,13 +19,13 @@ import java.io.IOException;
 public class TDEnemie implements Listener {
 
     private final TDWave wave;
-    private final NPC npc;
+    @Getter private final TDEnemieEntity entity;
     private int pathindex = 1;
     private int health;
 
     private final int startHealth;
     @Getter private final int damage;
-    private final int speed;
+    private final double speed;
     private final String type;
     private Material boots;
     private Material leggings;
@@ -47,7 +41,7 @@ public class TDEnemie implements Listener {
         this.type = type;
 
         ConfigurationSection dataSection = data.getConfigurationSection(type);
-        speed = dataSection.getInt("speed", 0);
+        speed = dataSection.getDouble("speed", 0);
         damage = dataSection.getInt("damage", 1);
         startHealth = dataSection.getInt("health", 20);
         health = startHealth;
@@ -79,20 +73,12 @@ public class TDEnemie implements Listener {
 
         if(!entityType.isSpawnable()) entityType = EntityType.ZOMBIE;
 
-        npc = CitizensAPI.getNPCRegistry().createNPC(entityType, type);
-        npc.getOrAddTrait(Equipment.class).set(Equipment.EquipmentSlot.BOOTS, new ItemStack(boots, 1));
-        npc.getOrAddTrait(Equipment.class).set(Equipment.EquipmentSlot.LEGGINGS, new ItemStack(leggings, 1));
-        npc.getOrAddTrait(Equipment.class).set(Equipment.EquipmentSlot.CHESTPLATE, new ItemStack(chestplate, 1));
-        npc.getOrAddTrait(Equipment.class).set(Equipment.EquipmentSlot.HELMET, new ItemStack(helmet, 1));
-        npc.getNavigator().setTarget(wave.getGame().getPath().get(pathindex));
-        npc.spawn(wave.getGame().getPath().get(0));
-
-        if(npc.isSpawned()) {
-            npc.getEntity().setInvulnerable(true);
-            if(npc.getEntity() instanceof LivingEntity) {
-                ((LivingEntity) npc.getEntity()).addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, speed, true));
-            }
-        }
+        entity = new TDEnemieEntity(EntityTypes.be, this.wave.getGame().getPath().get(pathindex), speed, this);
+        entity.setHealth(startHealth);
+        entity.setItem(EnumItemSlot.c, new ItemStack(boots, 1));
+        entity.setItem(EnumItemSlot.d, new ItemStack(leggings, 1));
+        entity.setItem(EnumItemSlot.e, new ItemStack(chestplate, 1));
+        entity.setItem(EnumItemSlot.f, new ItemStack(helmet, 1));
     }
 
     public void damage(TDTower tower) {
@@ -107,24 +93,20 @@ public class TDEnemie implements Listener {
         }
     }
 
-    @EventHandler
-    public void onFinish(NavigationCompleteEvent e) {
+    public void remove() {
+        this.entity.getBukkitEntity().remove();
+        this.wave.getGame().getEnemies().remove(this);
+        this.wave.killEntity(this.type);
+    }
+
+    public void nextWaypoint() {
         pathindex++;
-        if(wave.getGame().getPath().get(pathindex) == null) {
+        if(pathindex >= this.wave.getGame().getPath().size()) {
             remove();
             this.wave.getGame().damage(this);
             return;
         }
-        npc.getNavigator().setTarget(wave.getGame().getPath().get(pathindex));
-    }
-
-    public void remove() {
-        this.npc.destroy();
-    }
-
-    public Location getLocation() {
-        if(!this.npc.isSpawned()) return null;
-        return this.npc.getEntity().getLocation();
+        this.getEntity().setTargetLocation(this.wave.getGame().getPath().get(pathindex));
     }
 
     public static void registerEnemie(int health, int speed, int damage, String name, Material boots, Material leggings, Material chestplate, Material helmet) {
