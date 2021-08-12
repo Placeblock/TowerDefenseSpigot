@@ -1,7 +1,5 @@
 package placeblock.towerdefense.events;
 
-import net.minecraft.world.entity.ai.navigation.Navigation;
-import net.minecraft.world.entity.ai.navigation.NavigationAbstract;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.event.EventHandler;

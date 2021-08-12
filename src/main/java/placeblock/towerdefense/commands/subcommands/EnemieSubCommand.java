@@ -1,8 +1,8 @@
 package placeblock.towerdefense.commands.subcommands;
 
+import net.minecraft.world.entity.EntityType;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import placeblock.towerdefense.game.TDEnemie;
@@ -35,7 +35,7 @@ public class EnemieSubCommand extends SubCommand {
                 leggings,
                 chestplate,
                 boots,
-                EntityType.valueOf(args[2])
+                EntityType.byString(args[2]).orElse(EntityType.ZOMBIE)
         );
     }
 

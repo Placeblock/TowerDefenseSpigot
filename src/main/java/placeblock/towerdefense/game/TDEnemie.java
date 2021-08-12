@@ -1,16 +1,19 @@
 package placeblock.towerdefense.game;
 
 import lombok.Getter;
-import net.minecraft.server.level.WorldServer;
-import net.minecraft.world.entity.EntityTypes;
-import net.minecraft.world.entity.EnumItemSlot;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
-import org.bukkit.entity.EntityType;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.ItemStack;
 import placeblock.towerdefense.TowerDefense;
 import placeblock.towerdefense.util.BloodParticles;
@@ -20,15 +23,15 @@ import java.io.IOException;
 
 public class TDEnemie implements Listener {
 
-    private final TDWave wave;
-    @Getter private final TDEnemieEntity entity;
+    private TDWave wave;
+    @Getter private TDEnemieEntity entity;
     private int pathindex = 0;
     private int health;
 
     private final int startHealth;
     @Getter private final int damage;
-    @Getter private final double speed;
-    private final String type;
+    @Getter private final int speed;
+    @Getter private final String type;
     private Material boots;
     private Material leggings;
     private Material chestplate;
@@ -44,7 +47,7 @@ public class TDEnemie implements Listener {
         this.type = type;
 
         ConfigurationSection dataSection = data.getConfigurationSection(type);
-        speed = dataSection.getDouble("speed", 1.D);
+        speed = dataSection.getInt("speed", 1);
         System.out.println("SPEED: " + speed);
         damage = dataSection.getInt("damage", 1);
         startHealth = dataSection.getInt("health", 20);
@@ -70,52 +73,55 @@ public class TDEnemie implements Listener {
             helmet = Material.AIR;
         }
         try {
-            entityType = EntityType.valueOf(dataSection.getString("entityType", "ZOMBIE"));
+            System.out.println(dataSection.getString("entityType", "ZOMBIE"));
+            entityType = EntityType.byString(dataSection.getString("entityType", "ZOMBIE")).orElse(EntityType.SPIDER);
+            System.out.println("ENTITYTYPE: " + entityType);
         } catch (IllegalArgumentException e) {
             entityType = EntityType.ZOMBIE;
         }
 
-        if(!entityType.isSpawnable()) entityType = EntityType.ZOMBIE;
-
-        entity = new TDEnemieEntity(EntityTypes.be, this.wave.getGame().getPath().get(pathindex), this);
+        if(!entityType.canSummon()) entityType = EntityType.ZOMBIE;
+        System.out.println("ENTITYTYPE: " + entityType);
+        entity = new TDEnemieEntity(entityType, this.wave.getGame().getPath().get(pathindex), this);
         entity.setHealth(startHealth);
-        entity.setItem(EnumItemSlot.c, new ItemStack(boots, 1));
-        entity.setItem(EnumItemSlot.d, new ItemStack(leggings, 1));
-        entity.setItem(EnumItemSlot.e, new ItemStack(chestplate, 1));
-        entity.setItem(EnumItemSlot.f, new ItemStack(helmet, 1));
-        WorldServer world = ((CraftWorld) this.wave.getGame().getPath().get(pathindex).getWorld()).getHandle();
-        world.addEntity(entity);
+        entity.setItem(EquipmentSlot.FEET, new ItemStack(boots, 1));
+        entity.setItem(EquipmentSlot.LEGS, new ItemStack(leggings, 1));
+        entity.setItem(EquipmentSlot.CHEST, new ItemStack(chestplate, 1));
+        entity.setItem(EquipmentSlot.HEAD, new ItemStack(helmet, 1));
+        this.entity.setCustomName(new TextComponent(ChatColor.DARK_RED + type + " [" + this.health + "/" + this.startHealth + "]"));
+        ServerLevel world = ((CraftWorld) this.wave.getGame().getPath().get(pathindex).getWorld()).getHandle();
+        world.addEntity(entity, CreatureSpawnEvent.SpawnReason.CUSTOM);
     }
 
     public void damage(TDTower tower) {
         this.health -= tower.getDamage();
+        this.entity.setCustomName(new TextComponent(ChatColor.DARK_RED + type + " [" + this.health + "/" + this.startHealth + "]"));
         if(this.health <= 0) {
-            kill();
-            this.wave.getGame().getEnemies().remove(this);
+            this.wave.removeEntity(this);
+            this.wave.checkNextWave();
+            delete();
+            return;
         }else {
-            Location bloodLocation = tower.getLoc();
+            Location bloodLocation = entity.getBukkitEntity().getLocation().add(0, entity.getEyeHeight(), 0);
             if(bloodLocation == null) return;
-            bloodLocation.setY(bloodLocation.getY() + 0.5);
             BloodParticles.spawnBlood(bloodLocation);
         }
     }
 
-    public void kill() {
-        this.entity.getBukkitEntity().remove();
-        this.wave.killEntity(this.type, true);
-    }
-
     public void delete() {
         this.entity.getBukkitEntity().remove();
-        this.wave.killEntity(this.type, false);
+        this.entity.remove(Entity.RemovalReason.DISCARDED);
+        this.entity = null;
+        this.wave = null;
     }
 
     public Location nextWaypoint() {
         pathindex++;
         if(pathindex >= this.wave.getGame().getPath().size()) {
-            kill();
-            this.wave.getGame().getEnemies().remove(this);
+            System.out.println("DELETING INCAME ENTITY");
+            this.wave.removeEntity(this);
             this.wave.getGame().damage(this);
+            delete();
             return null;
         }
         return this.wave.getGame().getPath().get(pathindex);

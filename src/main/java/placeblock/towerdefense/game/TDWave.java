@@ -1,6 +1,7 @@
 package placeblock.towerdefense.game;
 
 import lombok.Getter;
+import net.minecraft.world.entity.Entity;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -12,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 public class TDWave {
@@ -23,7 +25,8 @@ public class TDWave {
     @Getter private final String name;
 
     @Getter private final ArrayList<BukkitTask> delayedspawntasks = new ArrayList<>();
-    @Getter private final ArrayList<String> spawnenemies = new ArrayList<>();
+    @Getter private final List<String> spawnenemies = new ArrayList<>();
+    @Getter private final ArrayList<TDEnemie> enemies = new ArrayList<>();
 
     public TDWave(String name, TDGame game) {
         this.game = game;
@@ -35,27 +38,33 @@ public class TDWave {
             Integer time = Integer.valueOf(key);
             if(time < 0) continue;
 
-            for(String timeenemie : wavedata.getStringList(key)) {
-                spawnenemies.add(timeenemie);
-            }
+            spawnenemies.addAll(wavedata.getStringList(key));
 
             delayedspawntasks.add(new BukkitRunnable() {
                 @Override
                 public void run() {
-                    System.out.println("SPAWNING: " + key);
-                    for(String timeenemie : wavedata.getStringList(key)) {
-                        TDEnemie enemie = new TDEnemie(timeenemie, TDWave.this);
-                        TDWave.this.game.getEnemies().add(enemie);
-                        delayedspawntasks.remove(this);
-                    }
+                System.out.println("SPAWNING: " + key);
+                for(String timeenemie : wavedata.getStringList(key)) {
+                    TDEnemie enemie = new TDEnemie(timeenemie, TDWave.this);
+                    TDWave.this.enemies.add(enemie);
+                    delayedspawntasks.remove(this);
+                }
                 }
             }.runTaskLater(TowerDefense.getInstance(), time));
         }
     }
 
-    public void killEntity(String name, boolean startnewwave) {
-        spawnenemies.remove(name);
-        if(spawnenemies.size() == 0 && startnewwave) {
+    public void removeEntity(TDEnemie enemie) {
+        spawnenemies.remove(enemie.getType());
+        Integer index = enemies.indexOf(enemie);
+        if(index == -1) return;
+        enemies.remove(index);
+    }
+
+    public void checkNextWave() {
+        if(spawnenemies.size() == 0 && enemies.size() == 0) {
+            game.getActiveWaves().remove(this);
+            System.out.println("NEXT WAVE");
             this.game.nextWave();
         }
     }
@@ -63,6 +72,13 @@ public class TDWave {
     public void delete() {
         for(BukkitTask task : delayedspawntasks) {
             task.cancel();
+        }
+        delayedspawntasks.clear();
+        spawnenemies.clear();
+        for(Iterator<TDEnemie> it = enemies.iterator(); it.hasNext();) {
+            TDEnemie enemie = it.next();
+            it.remove();
+            enemie.delete();
         }
     }
 

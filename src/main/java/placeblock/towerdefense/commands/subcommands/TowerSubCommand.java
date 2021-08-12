@@ -13,7 +13,7 @@ public class TowerSubCommand extends SubCommand {
     @Override
     public void onCommand(Player p, Command command, String[] args) {
         if(!args[2].matches("\\d+") || !args[3].matches("\\d+") || !args[4].matches("\\d+")) {
-            p.sendMessage("Wrong Usage! [name] [range] [damage] [cooldown]");
+            p.sendMessage("Wrong Usage! [name] [range] [damage] [cooldown] [skin]");
             return;
         }
         ItemStack[] armorcontents = p.getInventory().getArmorContents();
@@ -34,7 +34,8 @@ public class TowerSubCommand extends SubCommand {
                 helmet,
                 leggings,
                 chestplate,
-                boots
+                boots,
+                args[5]
         );
     }
 

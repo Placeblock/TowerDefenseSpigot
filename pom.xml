@@ -41,7 +41,7 @@
                         </goals>
                         <configuration>
                             <target name="Copy to Server">
-                                <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar" todir="C:\Users\xilef\Documents\Server\1.17\plugins" />
+                                <copy file="${project.build.directory}/${project.artifactId}-${project.version}-remapped.jar" todir="C:\Users\xilef\Documents\Server\1.17\plugins" />
                             </target>
                         </configuration>
                     </execution>
@@ -105,6 +105,13 @@
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.17.1-R0.1-SNAPSHOT</version>
+            <classifier>remapped-mojang</classifier>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>

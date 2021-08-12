@@ -1,69 +1,69 @@
 package placeblock.towerdefense.util;
 
-import net.minecraft.world.entity.EntityCreature;
-import net.minecraft.world.entity.ai.goal.PathfinderGoal;
-import net.minecraft.world.level.pathfinder.PathEntity;
+import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.level.pathfinder.Path;
 import org.bukkit.Location;
 import placeblock.towerdefense.game.TDEnemie;
 
 import java.util.EnumSet;
 
-public class PathfinderGoalLoc extends PathfinderGoal {
-    protected final EntityCreature a; //THE ENTITY
-    protected double b; // x
-    protected double c; // y
-    protected double d; // z
-    protected final double e; // speed
-    protected PathEntity oldk = null;
+public class PathfinderGoalLoc extends Goal {
+    protected final PathfinderMob creature; //THE ENTITY
+    protected double x; // x
+    protected double y; // y
+    protected double z; // z
+    protected final double speed; // speed
     protected final TDEnemie enemie;
+    protected int fails;
+    protected Path path;
 
-    public PathfinderGoalLoc(EntityCreature paramEntityCreature, double speed, TDEnemie enemie)
+    public PathfinderGoalLoc(PathfinderMob creature, double speed, TDEnemie enemie)
     {
         this.enemie = enemie;
-        a = paramEntityCreature;
-        e = speed;
+        this.creature = creature;
+        this.speed = speed;
         Location loc = enemie.nextWaypoint();
-        b = loc.getX();
-        c = loc.getY();
-        d = loc.getZ();
-        System.out.println("INIT LOCATION");
-        System.out.println(loc);
-        this.a(EnumSet.of(Type.d));
+        x = loc.getX();
+        y = loc.getY();
+        z = loc.getZ();
+        System.out.println(x);
+        System.out.println(y);
+        System.out.println(z);
+        this.setFlags(EnumSet.of(Flag.TARGET));
     }
 
-    //RUNS EVERY SINGLE TICK (THIS IS HOW ENTITIES WORK)
-    //WILL START PATHFINDING GOAL IF ITS TRUE
     @Override
-    public boolean a() {
-        return true; //<- runs c
-    }
-
-    //RUNS IF A IS TRUE
-    public void c() {
-        //runner                    x      y        z     speed
-        this.a.getNavigation().a(this.b, this.c, this.d, this.e);
-    }
-
-    //RUNS AFTER C
-    //RUN EVERY TICK AS LONG AS ITS TRUE (AFTER C GOTS EXECUTED)
-    public boolean b() {
-        System.out.println("OLDK: " + oldk + " | K: " + this.a.getNavigation().k());
-        if(this.oldk == null && this.a.getNavigation().k() == null) {
+    public boolean canUse() { //a
+        this.path = creature.getNavigation().createPath(this.x, this.y, this.z, 32); //a(...);
+        if(this.path == null) {
+            if(this.fails >= 6) return false;
+            this.fails++;
             return false;
         }
-        this.oldk = this.a.getNavigation().k();
+        this.creature.getNavigation().moveTo(this.x, this.y, this.z, this.speed);
         return true;
     }
 
-    //RUNS WHEN B RETURNS FALSE
-    public void d() {
+    public boolean canContinueToUse() { //b
+        return !this.creature.getNavigation().isDone();
+    }
+
+    public void start() { //c
+        this.fails = 0;
+
+    }
+
+    public void stop() { //d
+        this.path = null;
         Location newloc = this.enemie.nextWaypoint();
-        System.out.println("GOT NEW LOCATION");
-        System.out.println(newloc);
         if(newloc == null) return;
-        this.b = newloc.getX();
-        this.c = newloc.getY();
-        this.d = newloc.getZ();
+        this.x = newloc.getX();
+        this.y = newloc.getY();
+        this.z = newloc.getZ();
+    }
+
+    public void tick() { //e
     }
 
 }

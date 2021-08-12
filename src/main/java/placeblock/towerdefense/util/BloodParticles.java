@@ -11,9 +11,9 @@ public class BloodParticles {
             Particle.BLOCK_CRACK,
             loc,
             20,
-            0.4,
-            0.4,
-            0.4,
+            0.3,
+            0.2,
+            0.3,
             Material.REDSTONE_BLOCK.createBlockData()
         );
     }

@@ -5,6 +5,7 @@ import placeblock.towerdefense.game.TDGame;
 import placeblock.towerdefense.game.TDPlayer;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class TDPlayerRegistry {
 
@@ -21,7 +22,6 @@ public class TDPlayerRegistry {
 
     public void unregisterPlayer(Player p) {
         if(!players.containsKey(p)) return;
-        players.get(p).getGame().removePlayer(players.get(p));
         players.remove(p);
     }
 
