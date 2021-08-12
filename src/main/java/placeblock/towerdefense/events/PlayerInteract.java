@@ -14,12 +14,6 @@ public class PlayerInteract implements Listener {
     public void onInteract(org.bukkit.event.player.PlayerInteractEvent e) {
         TDPlayer player = TowerDefense.getInstance().getPlayerRegistry().getPlayer(e.getPlayer());
         if(player == null) return;
-        if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
-            if(e.getHand().equals(EquipmentSlot.OFF_HAND)) return;
-            if(e.getClickedBlock().getType().equals(Material.STONE)) {
-                player.getGame().getTowers().add(new TDTower("P90", e.getClickedBlock().getLocation().add(0.5, 1, 0.5), player.getGame(), player));
-            }
-        }
     }
 
 }

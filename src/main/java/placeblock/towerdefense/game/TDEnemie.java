@@ -97,10 +97,10 @@ public class TDEnemie implements Listener {
         this.health -= tower.getDamage();
         this.entity.setCustomName(new TextComponent(ChatColor.DARK_RED + type + " [" + this.health + "/" + this.startHealth + "]"));
         if(this.health <= 0) {
+            System.out.println("REMOVED ENTITY DAMAGE THINGY");
             this.wave.removeEntity(this);
-            this.wave.checkNextWave();
             delete();
-            return;
+            this.wave.checkNextWave();
         }else {
             Location bloodLocation = entity.getBukkitEntity().getLocation().add(0, entity.getEyeHeight(), 0);
             if(bloodLocation == null) return;
@@ -111,8 +111,6 @@ public class TDEnemie implements Listener {
     public void delete() {
         this.entity.getBukkitEntity().remove();
         this.entity.remove(Entity.RemovalReason.DISCARDED);
-        this.entity = null;
-        this.wave = null;
     }
 
     public Location nextWaypoint() {

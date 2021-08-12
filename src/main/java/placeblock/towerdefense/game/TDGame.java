@@ -57,6 +57,7 @@ public class TDGame implements Listener {
         this.waves = configSection.getStringList("waves");
 
         this.allowedtowers = configSection.getStringList("allowedtowers");
+        System.out.println("ALLOWEDTOWERS: " + this.allowedtowers);
 
         this.bossBar = Bukkit.createBossBar(new NamespacedKey(TowerDefense.getInstance(), "bb" + name), ChatColor.GREEN + "Leben: " + lives + "/" + startlives, BarColor.BLUE, BarStyle.SOLID);
         this.bossBar.setProgress(lives/startlives);

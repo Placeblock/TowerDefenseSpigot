@@ -4,9 +4,7 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import placeblock.towerdefense.commands.TDCommand;
-import placeblock.towerdefense.events.PlayerInteract;
-import placeblock.towerdefense.events.PlayerInteractEntity;
-import placeblock.towerdefense.events.PlayerInventoryEvent;
+import placeblock.towerdefense.events.*;
 import placeblock.towerdefense.game.TDEnemie;
 import placeblock.towerdefense.game.TDGame;
 import placeblock.towerdefense.game.TDTower;
@@ -31,6 +29,9 @@ public final class TowerDefense extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new PlayerInteractEntity(), this);
         Bukkit.getPluginManager().registerEvents(new PlayerInventoryEvent(), this);
         Bukkit.getPluginManager().registerEvents(new PlayerInteract(), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerScroll(), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerPlaceBlock(), this);
+
 
         TDEnemie.saveConfig();
         TDTower.saveConfig();

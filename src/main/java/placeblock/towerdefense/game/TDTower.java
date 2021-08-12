@@ -32,7 +32,7 @@ import java.util.*;
 public class TDTower {
     private final TDPlayer owner;
     private int level = 1;
-    private TDAttackType attackType = TDAttackType.STRONGEST;
+    private TDAttackType attackType = TDAttackType.NEAREST;
     @Getter private final Location loc;
     private final TDGame game;
     @Getter private ServerPlayer entity;

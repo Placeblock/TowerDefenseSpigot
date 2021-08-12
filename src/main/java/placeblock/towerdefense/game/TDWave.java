@@ -56,9 +56,7 @@ public class TDWave {
 
     public void removeEntity(TDEnemie enemie) {
         spawnenemies.remove(enemie.getType());
-        Integer index = enemies.indexOf(enemie);
-        if(index == -1) return;
-        enemies.remove(index);
+        enemies.remove(enemie);
     }
 
     public void checkNextWave() {
