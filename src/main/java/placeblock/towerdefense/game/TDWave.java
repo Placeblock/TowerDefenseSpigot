@@ -43,7 +43,6 @@ public class TDWave {
             delayedspawntasks.add(new BukkitRunnable() {
                 @Override
                 public void run() {
-                System.out.println("SPAWNING: " + key);
                 for(String timeenemie : wavedata.getStringList(key)) {
                     TDEnemie enemie = new TDEnemie(timeenemie, TDWave.this);
                     TDWave.this.enemies.add(enemie);

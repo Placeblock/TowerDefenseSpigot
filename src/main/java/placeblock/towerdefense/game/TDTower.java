@@ -2,6 +2,7 @@ package placeblock.towerdefense.game;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import com.mojang.datafixers.util.Pair;
 import lombok.Getter;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.server.MinecraftServer;
@@ -9,6 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.util.MathHelper;
+import net.minecraft.world.entity.EquipmentSlot;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -17,6 +19,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
@@ -177,6 +180,12 @@ public class TDTower {
         String skinvalue = getSkinValue(type);
         String skinsig = getSkinSig(type);
 
+        if(this.entity instanceof LivingEntity) {
+            ((LivingEntity) this.entity).getEquipment().setHelmet(new ItemStack(helmet, 1));
+            ((LivingEntity) this.entity).getEquipment().setLeggings(new ItemStack(leggings, 1));
+            ((LivingEntity) this.entity).getEquipment().setChestplate(new ItemStack(chestplate, 1));
+            ((LivingEntity) this.entity).getEquipment().setBoots(new ItemStack(boots, 1));
+        }
         if(this.entity == null) {
             MinecraftServer nmsServer = ((CraftServer) Bukkit.getServer()).getServer();
             ServerLevel nmsWorld = ((CraftWorld) loc.getWorld()).getHandle();
@@ -184,7 +193,6 @@ public class TDTower {
             gameProfile.getProperties().put("textxures", new Property("textures", skinvalue, skinsig));
             entity = new ServerPlayer(nmsServer, nmsWorld, gameProfile);
             entity.setPos(loc.getX(), loc.getY(), loc.getZ());
-
             for(TDPlayer player : this.game.getPlayers()) {
                 ServerGamePacketListenerImpl connection = ((CraftPlayer) player.getP()).getHandle().connection;
                 connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.ADD_PLAYER, entity));
@@ -199,11 +207,15 @@ public class TDTower {
             }
         }
 
-        if(this.entity instanceof LivingEntity) {
-            ((LivingEntity) this.entity).getEquipment().setHelmet(new ItemStack(helmet, 1));
-            ((LivingEntity) this.entity).getEquipment().setLeggings(new ItemStack(leggings, 1));
-            ((LivingEntity) this.entity).getEquipment().setChestplate(new ItemStack(chestplate, 1));
-            ((LivingEntity) this.entity).getEquipment().setBoots(new ItemStack(boots, 1));
+        List<Pair<EquipmentSlot, net.minecraft.world.item.ItemStack>> list = new ArrayList<>();
+        list.add(new Pair<>(EquipmentSlot.FEET, CraftItemStack.asNMSCopy(new ItemStack(boots))));
+        list.add(new Pair<>(EquipmentSlot.LEGS, CraftItemStack.asNMSCopy(new ItemStack(leggings))));
+        list.add(new Pair<>(EquipmentSlot.CHEST, CraftItemStack.asNMSCopy(new ItemStack(chestplate))));
+        list.add(new Pair<>(EquipmentSlot.HEAD, CraftItemStack.asNMSCopy(new ItemStack(helmet))));
+
+        for(TDPlayer player : this.game.getPlayers()) {
+            ServerGamePacketListenerImpl connection = ((CraftPlayer) player.getP()).getHandle().connection;
+            connection.send(new ClientboundSetEquipmentPacket(entity.getId(), list));
         }
     }
 

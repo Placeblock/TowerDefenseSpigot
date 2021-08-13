@@ -76,6 +76,7 @@ public class TDInventoryTowerSection extends TDInventorySection{
                 break;
             case "upgrade":
                 tower.levelUp();
+                setItems();
                 break;
             case "close":
                 new BukkitRunnable() {
