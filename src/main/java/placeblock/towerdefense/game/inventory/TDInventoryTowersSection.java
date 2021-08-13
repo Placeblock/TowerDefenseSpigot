@@ -40,6 +40,7 @@ public class TDInventoryTowersSection extends TDInventorySection {
         for(int i = 0; i < 9; i++) {
             if (i + index < towers.size()) {
                 String name = towers.get(i + index);
+                System.out.println("SET INV TOWER : " + name);
                 ConfigurationSection data = TDTower.getData(name);
                 ItemStack item = getDataItem(Material.PLAYER_HEAD,
                         1,
@@ -49,7 +50,7 @@ public class TDInventoryTowersSection extends TDInventorySection {
                         "§7Firerate: §d§l" + (Math.round((double) 20 / data.getInt("level.1.cooldown", 5) * 100) / 100) + "/s",
                         "§7Damage: §d§l" + data.getInt("level.1.damage")
                 );
-                item = setHeadSkin(item, TDTower.getSkinValue(name));
+                item = setHeadSkin(item, TDTower.getSkinValue(name, 0));
                 player.getP().getInventory().addItem(item);
             }
         }

@@ -5,6 +5,8 @@ import com.mojang.authlib.properties.Property;
 import com.mojang.datafixers.util.Pair;
 import lombok.Getter;
 import net.minecraft.network.protocol.game.*;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -63,13 +65,6 @@ public class TDTower {
 
         loadData();
 
-        shootimer = new BukkitRunnable() {
-            @Override
-            public void run() {
-                shoot();
-            }
-        }.runTaskTimer(TowerDefense.getInstance(), 0, this.cooldown);
-
         moveheadtimer = new BukkitRunnable() {
             @Override
             public void run() {
@@ -86,6 +81,7 @@ public class TDTower {
             }
         }.runTaskTimer(TowerDefense.getInstance(), 0, 20);
     }
+
 
     public void shoot() {
         TDEnemie attackable = getAttackable();
@@ -177,34 +173,35 @@ public class TDTower {
 
         if(!entityType.isSpawnable()) entityType = EntityType.ZOMBIE;
 
-        String skinvalue = getSkinValue(type);
-        String skinsig = getSkinSig(type);
+        String skinvalue = getSkinValue(type, level);
+        String skinsig = getSkinSig(type, level);
 
-        if(this.entity instanceof LivingEntity) {
-            ((LivingEntity) this.entity).getEquipment().setHelmet(new ItemStack(helmet, 1));
-            ((LivingEntity) this.entity).getEquipment().setLeggings(new ItemStack(leggings, 1));
-            ((LivingEntity) this.entity).getEquipment().setChestplate(new ItemStack(chestplate, 1));
-            ((LivingEntity) this.entity).getEquipment().setBoots(new ItemStack(boots, 1));
-        }
-        if(this.entity == null) {
-            MinecraftServer nmsServer = ((CraftServer) Bukkit.getServer()).getServer();
-            ServerLevel nmsWorld = ((CraftWorld) loc.getWorld()).getHandle();
-            GameProfile gameProfile = new GameProfile(UUID.randomUUID(), type);
-            gameProfile.getProperties().put("textxures", new Property("textures", skinvalue, skinsig));
-            entity = new ServerPlayer(nmsServer, nmsWorld, gameProfile);
-            entity.setPos(loc.getX(), loc.getY(), loc.getZ());
+        if(this.entity != null) {
             for(TDPlayer player : this.game.getPlayers()) {
                 ServerGamePacketListenerImpl connection = ((CraftPlayer) player.getP()).getHandle().connection;
-                connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.ADD_PLAYER, entity));
-                connection.send(new ClientboundAddPlayerPacket(entity));
-                connection.send(new ClientboundRotateHeadPacket(entity, (byte) (entity.getBukkitYaw() * 256 / 360)));
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER, entity));
-                    }
-                }.runTaskLater(TowerDefense.getInstance(), 10);
+                connection.send(new ClientboundRemoveEntitiesPacket(entity.getId()));
             }
+        }
+
+        MinecraftServer nmsServer = ((CraftServer) Bukkit.getServer()).getServer();
+        ServerLevel nmsWorld = ((CraftWorld) loc.getWorld()).getHandle();
+        GameProfile gameProfile = new GameProfile(UUID.randomUUID(), type);
+        gameProfile.getProperties().put("textxures", new Property("textures", skinvalue, skinsig));
+        entity = new ServerPlayer(nmsServer, nmsWorld, gameProfile);
+        entity.setPos(loc.getX(), loc.getY(), loc.getZ());
+        entity.getEntityData().set(new EntityDataAccessor<>(17, EntityDataSerializers.BYTE), (byte) 127);
+        for(TDPlayer player : this.game.getPlayers()) {
+            ServerGamePacketListenerImpl connection = ((CraftPlayer) player.getP()).getHandle().connection;
+            connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.ADD_PLAYER, entity));
+            connection.send(new ClientboundAddPlayerPacket(entity));
+            connection.send(new ClientboundSetEntityDataPacket(entity.getId(), entity.getEntityData(), true));
+            connection.send(new ClientboundRotateHeadPacket(entity, (byte) (entity.getBukkitYaw() * 256 / 360)));
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER, entity));
+                }
+            }.runTaskLater(TowerDefense.getInstance(), 10);
         }
 
         List<Pair<EquipmentSlot, net.minecraft.world.item.ItemStack>> list = new ArrayList<>();
@@ -217,6 +214,14 @@ public class TDTower {
             ServerGamePacketListenerImpl connection = ((CraftPlayer) player.getP()).getHandle().connection;
             connection.send(new ClientboundSetEquipmentPacket(entity.getId(), list));
         }
+
+        if(shootimer != null) shootimer.cancel();
+        shootimer = new BukkitRunnable() {
+            @Override
+            public void run() {
+                shoot();
+            }
+        }.runTaskTimer(TowerDefense.getInstance(), 0, this.cooldown);
     }
 
     public int getSellPrice() {
@@ -229,8 +234,8 @@ public class TDTower {
         return sellprice;
     }
 
-    public static String getSkinValue(String name) {
-        return data.getString(name + ".skin.value",
+    public static String getSkinValue(String name, int level) {
+        return data.getString(name + ".level."+level+".skin.value",
                 "ewogICJ0aW1lc3RhbXAiIDogMTYwOTA0NTY1OTE3NywKICAicHJvZmlsZUlkIiA6ICJiYzRlZGZiNWYzNmM0OG" +
                         "E3YWM5ZjFhMzlkYzIzZjRmOCIsCiAgInByb2ZpbGVOYW1lIiA6ICI4YWNhNjgwYjIyNDYxM" +
                         "zQwIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewog" +
@@ -239,8 +244,8 @@ public class TDTower {
                         "M3Y2MxNmI1ODgyYjVhY2I2YzdkZDgwZTciCiAgICB9CiAgfQp9");
     }
 
-    public static String getSkinSig(String name) {
-        return data.getString(name + ".skin.signature",
+    public static String getSkinSig(String name, int level) {
+        return data.getString(name + ".level."+level+".skin.signature",
                 "IEnd6B63PO/Y3ApX0NC5xD6X486/CWCO810akzufb+5DmhGELWS9QB3y8arBLuPJWc5zIIZt" +
                         "G88Re5QmQ9e/zGXrUS1hl+adzqJC8ghpiQ8+h217I0MFuik8kepvP01fs5IM/VO8JuB" +
                         "44ENAMeVaqTDC3UpSTZwDgBOAitMm0JwjwWaUKP/COehEvhI47xZEevEha/uGdUn/S7" +
