@@ -134,6 +134,7 @@ public class TDTower {
 
     public void levelUp() {
         level++;
+        owner.removeMoney(getData(type).getConfigurationSection("level." + level).getInt("price", 30));
         loadData();
     }
 
@@ -201,6 +202,16 @@ public class TDTower {
             ((LivingEntity) this.entity).getEquipment().setChestplate(new ItemStack(chestplate, 1));
             ((LivingEntity) this.entity).getEquipment().setBoots(new ItemStack(boots, 1));
         }
+    }
+
+    public int getSellPrice() {
+        int sellprice = 0;
+        ConfigurationSection towerdata = getData(this.type);
+        sellprice += towerdata.getInt("sell", 50);
+        for(String level : towerdata.getConfigurationSection("level").getKeys(false)) {
+            sellprice += towerdata.getInt("level." + level + ".sell", 20);
+        }
+        return sellprice;
     }
 
     public static String getSkinValue(String name) {

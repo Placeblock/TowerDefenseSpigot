@@ -115,5 +115,6 @@ public class TDInventoryTowersSection extends TDInventorySection {
     }
 
     public void interactTower(PlayerInteractTowerEvent e) {
+        e.getPlayer().setInventorySection(new TDInventoryTowerSection(player, e.getTower()));
     }
 }
