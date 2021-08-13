@@ -10,6 +10,7 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import placeblock.towerdefense.commands.TDCommand;
 import placeblock.towerdefense.events.*;
 import placeblock.towerdefense.events.custom.PlayerInteractTowerEvent;
@@ -39,6 +40,7 @@ public final class TowerDefense extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new PlayerInteract(), this);
         Bukkit.getPluginManager().registerEvents(new PlayerScroll(), this);
         Bukkit.getPluginManager().registerEvents(new PlayerPlaceBlock(), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerInteractTower(), this);
 
 
         TDEnemie.saveConfig();
@@ -50,9 +52,8 @@ public final class TowerDefense extends JavaPlugin {
                 new PacketAdapter(this, ListenerPriority.HIGHEST,
                         PacketType.Play.Client.USE_ENTITY) {
                     @Override
-                    public void onPacketSending(PacketEvent event) {
-                        if (event.getPacketType() ==
-                                PacketType.Play.Client.USE_ENTITY) {
+                    public void onPacketReceiving(PacketEvent event) {
+                        if (event.getPacketType() == PacketType.Play.Client.USE_ENTITY) {
                             Player p = event.getPlayer();
                             TDPlayer player = playerRegistry.getPlayer(p);
                             if(player == null) return;
@@ -60,18 +61,26 @@ public final class TowerDefense extends JavaPlugin {
                             for(TDGame game : TDGame.getGames()) {
                                 for(TDTower tower : game.getTowers()) {
                                     if(tower.getEntity().getId() == entityid) {
-                                        PlayerInteractTowerEvent newevent = new PlayerInteractTowerEvent(player, tower);
-                                        Bukkit.getPluginManager().callEvent(newevent);
+                                        new BukkitRunnable() {
+                                            @Override
+                                            public void run() {
+
+                                                PlayerInteractTowerEvent newevent = new PlayerInteractTowerEvent(player, tower);
+                                                Bukkit.getPluginManager().callEvent(newevent);
+                                            }
+                                        }.runTask(TowerDefense.getInstance());
                                     }
                                 }
                             }
                         }
                     }
                 });
+
     }
 
     @Override
     public void onDisable() {
+        protocolManager.removePacketListeners(instance);
         TDGame.unregisterAll();
     }
 }

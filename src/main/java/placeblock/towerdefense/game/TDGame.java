@@ -121,8 +121,6 @@ public class TDGame implements Listener {
         activeWaves.clear();
         for(TDTower tower : towers) {
             tower.remove();
-            System.out.println("DELETED TOWER: ");
-            System.out.println(tower);
         }
         towers.clear();
         for(TDPlayer p : players) {

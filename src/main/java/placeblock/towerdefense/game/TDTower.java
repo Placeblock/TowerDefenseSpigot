@@ -113,7 +113,6 @@ public class TDTower {
         }else if(attackType.equals(TDAttackType.FIRST)) {
             ArrayList<TDEnemie> enemiesradius = new ArrayList<>();
             for(TDEnemie enemie : enemies) {
-                System.out.println(this.loc.distance(enemie.getEntity().getBukkitEntity().getLocation()));
                 if(this.loc.distance(enemie.getEntity().getBukkitEntity().getLocation()) > this.range) continue;
                 enemiesradius.add(enemie);
             }
@@ -133,6 +132,10 @@ public class TDTower {
     }
 
     public void levelUp() {
+        if(!getData(type).contains("level." + (level + 1))) {
+            owner.getP().sendMessage("Maximales Level erreicht!");
+            return;
+        }
         level++;
         owner.removeMoney(getData(type).getConfigurationSection("level." + level).getInt("price", 30));
         loadData();

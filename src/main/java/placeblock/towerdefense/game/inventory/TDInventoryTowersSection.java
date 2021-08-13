@@ -25,8 +25,6 @@ import java.util.UUID;
 
 public class TDInventoryTowersSection extends TDInventorySection {
 
-    private static final HashMap<String, ItemStack> towerheads = new HashMap<>();
-
     private final int index;
 
     public TDInventoryTowersSection(TDPlayer player, int index) {
@@ -37,46 +35,23 @@ public class TDInventoryTowersSection extends TDInventorySection {
 
     @Override
     protected void setItems() {
-        items.clear();
+        player.getP().getInventory().clear();
         List<String> towers = player.getGame().getAllowedtowers();
         for(int i = 0; i < 9; i++) {
-            items.set(i, new ItemStack(Material.AIR));
             if (i + index < towers.size()) {
                 String name = towers.get(i + index);
-                if (towerheads.containsKey(name)) {
-                    items.add(towerheads.get(name));
-                } else {
-                    ConfigurationSection data = TDTower.getData(name);
-                    ItemStack item = new ItemStack(Material.PLAYER_HEAD);
-                    ItemMeta meta = item.getItemMeta();
-                    meta.getPersistentDataContainer().set(new NamespacedKey(TowerDefense.getInstance(), "tower"), PersistentDataType.STRING, name);
-                    meta.setDisplayName("§b§l" + name);
-                    List<String> lore = new ArrayList<>();
-                    lore.add("§7Range: §d§l" + data.getInt("level.1.range", 5) + "B");
-                    lore.add("§7Firerate: §d§l" + (Math.round((double) 20 / data.getInt("level.1.cooldown", 5) * 100) / 100) + "/s");
-                    lore.add("§7Damage: §d§l" + data.getInt("level.1.damage"));
-                    meta.setLore(lore);
-
-                    GameProfile profile = new GameProfile(UUID.randomUUID(), null);
-                    profile.getProperties().put("textures", new Property("textures", TDTower.getSkinValue(name)));
-
-                    try {
-                        Method mtd = meta.getClass().getDeclaredMethod("setProfile", GameProfile.class);
-                        mtd.setAccessible(true);
-                        mtd.invoke(meta, profile);
-                    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ex) {
-                        ex.printStackTrace();
-                    }
-
-                    item.setItemMeta(meta);
-                    towerheads.put(name, item);
-                    items.add(item);
-                }
+                ConfigurationSection data = TDTower.getData(name);
+                ItemStack item = getDataItem(Material.PLAYER_HEAD,
+                        1,
+                        "§b§l" + name,
+                        name,
+                        "§7Range: §d§l" + data.getInt("level.1.range", 5) + "B",
+                        "§7Firerate: §d§l" + (Math.round((double) 20 / data.getInt("level.1.cooldown", 5) * 100) / 100) + "/s",
+                        "§7Damage: §d§l" + data.getInt("level.1.damage")
+                );
+                item = setHeadSkin(item, TDTower.getSkinValue(name));
+                player.getP().getInventory().addItem(item);
             }
-        }
-
-        for(int i = 0; i < 9 && i < items.size(); i++) {
-            player.getP().getInventory().setItem(i, items.get(i));
         }
     }
 
@@ -99,9 +74,14 @@ public class TDInventoryTowersSection extends TDInventorySection {
     @Override
     public void build(BlockPlaceEvent e) {
         e.setCancelled(true);
-        if(!e.getItemInHand().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(TowerDefense.getInstance(), "tower"), PersistentDataType.STRING)) return;
-        String tower = e.getItemInHand().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(TowerDefense.getInstance(), "tower"), PersistentDataType.STRING);
+        System.out.println("BLOCK");
+        if(!e.getItemInHand().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(TowerDefense.getInstance(), "data"), PersistentDataType.STRING)) return;
+        String tower = e.getItemInHand().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(TowerDefense.getInstance(), "data"), PersistentDataType.STRING);
+
+        if(TDTower.getData(tower) == null) return;
+
         if(player.getMoney() >= TDTower.getData(tower).getInt("cost", 100)) {
+            System.out.println("HAS MONEY");
             player.getGame().getTowers().add(new TDTower(tower, e.getBlockAgainst().getLocation().add(0.5, 1, 0.5), player.getGame(), player));
             player.removeMoney(TDTower.getData(tower).getInt("cost", 100));
         }else {
@@ -111,7 +91,7 @@ public class TDInventoryTowersSection extends TDInventorySection {
 
     @Override
     public void interact(PlayerInteractEvent e) {
-        e.setCancelled(true);
+
     }
 
     public void interactTower(PlayerInteractTowerEvent e) {

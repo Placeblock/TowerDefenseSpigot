@@ -22,7 +22,7 @@ public class PlayerInteractTowerEvent extends Event implements Cancellable {
 
     @Override
     public boolean isCancelled() {
-        return this.isCancelled();
+        return this.isCancelled;
     }
 
     @Override
