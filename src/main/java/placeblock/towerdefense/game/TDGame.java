@@ -57,7 +57,6 @@ public class TDGame implements Listener {
         this.waves = configSection.getStringList("waves");
 
         this.allowedtowers = configSection.getStringList("allowedtowers");
-        System.out.println("ALLOWEDTOWERS: " + this.allowedtowers);
 
         this.bossBar = Bukkit.createBossBar(new NamespacedKey(TowerDefense.getInstance(), "bb" + name), ChatColor.GREEN + "Leben: " + lives + "/" + startlives, BarColor.BLUE, BarStyle.SOLID);
         this.bossBar.setProgress(lives/startlives);
@@ -88,12 +87,11 @@ public class TDGame implements Listener {
     }
 
     public void nextWave() {
-        if(waves.size() - 1 == lastWave) {
-            System.out.println("END GAME BECAUSE NO NEXT WAVE");
+        lastWave++;
+        if(lastWave >= waves.size()) {
             delete();
             return;
         }
-        lastWave++;
         activeWaves.add(new TDWave(waves.get(lastWave),this));
     }
 
@@ -123,6 +121,8 @@ public class TDGame implements Listener {
         activeWaves.clear();
         for(TDTower tower : towers) {
             tower.remove();
+            System.out.println("DELETED TOWER: ");
+            System.out.println(tower);
         }
         towers.clear();
         for(TDPlayer p : players) {
@@ -142,8 +142,6 @@ public class TDGame implements Listener {
     }
 
     public static void addWaypoint(String name, Location location) {
-        System.out.println(gamedata.getKeys(false).toArray()[0]);
-        System.out.println(name);
         List<Location> locations = new ArrayList<>();
         if(!gamedata.getConfigurationSection(name).contains("path")) {
             gamedata.getConfigurationSection(name).createSection("path");

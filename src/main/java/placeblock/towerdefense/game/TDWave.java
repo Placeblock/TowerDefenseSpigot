@@ -62,7 +62,6 @@ public class TDWave {
     public void checkNextWave() {
         if(spawnenemies.size() == 0 && enemies.size() == 0) {
             game.getActiveWaves().remove(this);
-            System.out.println("NEXT WAVE");
             this.game.nextWave();
         }
     }

@@ -13,7 +13,7 @@ public class PlayerPlaceBlock implements Listener {
     public void onPlace(BlockPlaceEvent e) {
         TDPlayer player = TowerDefense.getInstance().getPlayerRegistry().getPlayer(e.getPlayer());
         if(player == null) return;
-        player.getInventoryHandler().onPlace(e);
+        player.getInventorySection().build(e);
     }
 
 }

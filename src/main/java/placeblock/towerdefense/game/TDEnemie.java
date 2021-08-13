@@ -21,36 +21,35 @@ import placeblock.towerdefense.util.BloodParticles;
 import java.io.File;
 import java.io.IOException;
 
+@Getter
 public class TDEnemie implements Listener {
-
-    private TDWave wave;
-    @Getter private TDEnemieEntity entity;
+    private final int startHealth;
+    private final int damage;
+    private final int speed;
+    private final int deathmoney;
+    private final String type;
     private int pathindex = 0;
     private int health;
-
-    private final int startHealth;
-    @Getter private final int damage;
-    @Getter private final int speed;
-    @Getter private final String type;
-    private Material boots;
-    private Material leggings;
-    private Material chestplate;
-    private Material helmet;
     private EntityType entityType;
+    private TDEnemieEntity entity;
+    private TDWave wave;
+    private Material chestplate;
+    private Material leggings;
+    private Material boots;
+    private Material helmet;
 
     private final static File file = new File(TowerDefense.getInstance().getDataFolder() + "/enemies.yml");
     private final static YamlConfiguration data = YamlConfiguration.loadConfiguration(file);
 
     public TDEnemie(String type, TDWave wave) {
-        System.out.println("CREATED NEW ENEMIE");
         this.wave = wave;
         this.type = type;
 
         ConfigurationSection dataSection = data.getConfigurationSection(type);
         speed = dataSection.getInt("speed", 1);
-        System.out.println("SPEED: " + speed);
         damage = dataSection.getInt("damage", 1);
         startHealth = dataSection.getInt("health", 20);
+        deathmoney = dataSection.getInt("deathmoney", 20);
         health = startHealth;
         try {
             boots = Material.valueOf(dataSection.getString("boots", "AIR"));
@@ -73,15 +72,11 @@ public class TDEnemie implements Listener {
             helmet = Material.AIR;
         }
         try {
-            System.out.println(dataSection.getString("entityType", "ZOMBIE"));
-            entityType = EntityType.byString(dataSection.getString("entityType", "ZOMBIE")).orElse(EntityType.SPIDER);
-            System.out.println("ENTITYTYPE: " + entityType);
+            entityType = EntityType.byString(dataSection.getString("entityType", "ZOMBIE")).orElse(EntityType.ZOMBIE);
         } catch (IllegalArgumentException e) {
             entityType = EntityType.ZOMBIE;
         }
-
         if(!entityType.canSummon()) entityType = EntityType.ZOMBIE;
-        System.out.println("ENTITYTYPE: " + entityType);
         entity = new TDEnemieEntity(entityType, this.wave.getGame().getPath().get(pathindex), this);
         entity.setHealth(startHealth);
         entity.setItem(EquipmentSlot.FEET, new ItemStack(boots, 1));
@@ -97,7 +92,7 @@ public class TDEnemie implements Listener {
         this.health -= tower.getDamage();
         this.entity.setCustomName(new TextComponent(ChatColor.DARK_RED + type + " [" + this.health + "/" + this.startHealth + "]"));
         if(this.health <= 0) {
-            System.out.println("REMOVED ENTITY DAMAGE THINGY");
+            tower.getOwner().addMoney(deathmoney);
             this.wave.removeEntity(this);
             delete();
             this.wave.checkNextWave();
@@ -116,10 +111,10 @@ public class TDEnemie implements Listener {
     public Location nextWaypoint() {
         pathindex++;
         if(pathindex >= this.wave.getGame().getPath().size()) {
-            System.out.println("DELETING INCAME ENTITY");
             this.wave.removeEntity(this);
-            this.wave.getGame().damage(this);
             delete();
+            this.wave.getGame().damage(this);
+            this.wave.checkNextWave();
             return null;
         }
         return this.wave.getGame().getPath().get(pathindex);
@@ -135,8 +130,6 @@ public class TDEnemie implements Listener {
         data.set(name + ".chestplate", chestplate.toString());
         data.set(name + ".helmet", helmet.toString());
         data.set(name + ".entityType", type.toString());
-
-        System.out.println("REGISTERED NEW ENTITY");
 
         saveConfig();
     }
