@@ -40,7 +40,6 @@ public class TDInventoryTowersSection extends TDInventorySection {
         for(int i = 0; i < 9; i++) {
             if (i + index < towers.size()) {
                 String name = towers.get(i + index);
-                System.out.println("SET INV TOWER : " + name);
                 ConfigurationSection data = TDTower.getData(name);
                 ItemStack item = getDataItem(Material.PLAYER_HEAD,
                         1,
@@ -75,14 +74,12 @@ public class TDInventoryTowersSection extends TDInventorySection {
     @Override
     public void build(BlockPlaceEvent e) {
         e.setCancelled(true);
-        System.out.println("BLOCK");
         if(!e.getItemInHand().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(TowerDefense.getInstance(), "data"), PersistentDataType.STRING)) return;
         String tower = e.getItemInHand().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(TowerDefense.getInstance(), "data"), PersistentDataType.STRING);
 
         if(TDTower.getData(tower) == null) return;
 
         if(player.getMoney() >= TDTower.getData(tower).getInt("cost", 100)) {
-            System.out.println("HAS MONEY");
             player.getGame().getTowers().add(new TDTower(tower, e.getBlockAgainst().getLocation().add(0.5, 1, 0.5), player.getGame(), player));
             player.removeMoney(TDTower.getData(tower).getInt("cost", 100));
         }else {
